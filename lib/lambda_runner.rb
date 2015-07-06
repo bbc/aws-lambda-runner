@@ -33,12 +33,15 @@ module LambdaRunner
     end
 
     def start(opts = { cover: true })
+      if opts[:timeout] == nil
+        opts[:timeout] = '30000'
+      end
       install_deps
       add_aws_sdk
       # start node in a way that emulates how it's run in production
       cmd = ['node']
       cmd = [File.join(@npm_cwd, 'node_modules/.bin/istanbul'), 'cover', '--root', File.dirname(@module_path), '--'] if opts[:cover]
-      cmd += [File.join(@npm_cwd, 'startup.js'), '-p', @port.to_s, '-m', @module_path, '-h', @name, '-t', '1000']
+      cmd += [File.join(@npm_cwd, 'startup.js'), '-p', @port.to_s, '-m', @module_path, '-h', @name, '-t', opts[:timeout]]
       @proc = ProcessHelper::ProcessHelper.new(print_lines: true)
       @proc.start(cmd, 'Server running at http')
     end
@@ -60,7 +63,7 @@ module LambdaRunner
     def send(message)
       id = RestClient.post(url, message, content_type: :json).to_str
       loop do
-        wait(RestClient.get(url, params: { id: id })) || break
+        wait(RestClient.get(url, params: { id: id })) && break
         sleep(0.1)
       end
     end
