@@ -33,7 +33,7 @@ module LambdaRunner
     end
 
     def start(opts = { cover: true })
-      if opts[:timeout] == nill
+      if opts[:timeout] == nil
         opts[:timeout] = '30000'
       end
       install_deps
