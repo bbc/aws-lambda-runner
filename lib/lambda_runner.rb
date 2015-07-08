@@ -63,7 +63,7 @@ module LambdaRunner
     def send(message)
       id = RestClient.post(url, message, content_type: :json).to_str
       loop do
-        wait(RestClient.get(url, params: { id: id })) && break
+        wait(RestClient.get(url, params: { id: id })) || break
         sleep(0.1)
       end
     end
