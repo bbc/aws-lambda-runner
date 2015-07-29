@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+require 'getoptlong'
+
+begin
+  require 'pry'
+rescue LoadError
+end
+
+HELP_TEXT = '
+  Arguments:
+  --debug (-d): Enables debugging using node-inspector, launches chrome devtools.
+  --port (-p): Select port for lambda http wrapper
+  --module (-m): /path/to/module.js that contains your handler
+  --handler (-h): name of handler
+  --timeout (-t): timeout to set on the handler
+
+  eg. $ aws-lamda-runner --debug --port 8897 --module src/manifesto.js --handler handler
+'
+
+def die(msg)
+  puts "ERROR: #{msg}"
+  puts HELP_TEXT
+  exit 1
+end
+
+opts = GetoptLong.new(
+  ['--debug', '-d', GetoptLong::NO_ARGUMENT],
+  ['--port', '-p', GetoptLong::REQUIRED_ARGUMENT],
+  ['--module', '-m', GetoptLong::REQUIRED_ARGUMENT],
+  ['--handler', '-h', GetoptLong::REQUIRED_ARGUMENT],
+  ['--timeout', '-t', GetoptLong::REQUIRED_ARGUMENT]
+)
+
+@debug = false
+
+opts.each do |opt, arg|
+  case opt
+  when '--debug'
+    @debug = true
+  when '--port'
+    @port = arg
+  when '--module'
+    @module = arg
+  when '--handler'
+    @handler = arg
+  when '--timeout'
+    @timeout = arg
+  else
+    puts HELP_TEXT
+    exit
+  end
+end
+
+if @port.nil? || @module.nil? || @handler.nil?
+  die "--port, --module, and --handler are all mandatory arguments"
+end
+
+js_dir = File.expand_path('../../js', __FILE__)
+
+if @debug.eql?(true)
+  cmd = ['node-debug --debug-brk']
+else
+  cmd = ['node']
+end
+
+cmd += ["#{js_dir}/startup.js"]
+cmd += ["-p #{@port}"]
+cmd += ["-m #{@module}"]
+cmd += ["-h #{@handler}"]
+cmd += ["-t #{@timeout}"]
+
+cmd = cmd.join(' ')
+
+Dir.chdir(File.dirname(@module)){
+  system(cmd)
+}
