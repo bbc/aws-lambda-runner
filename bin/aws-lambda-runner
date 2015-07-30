@@ -58,7 +58,7 @@ end
 js_dir = File.expand_path('../../js', __FILE__)
 
 if @debug.eql?(true)
-  cmd = ['node-debug --debug-brk']
+  cmd = ['node-debug', '--debug-brk', '--cli']
 else
   cmd = ['node']
 end
