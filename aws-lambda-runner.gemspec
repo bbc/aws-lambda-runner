@@ -4,7 +4,7 @@ $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 Gem::Specification.new do |s|
   s.name        = 'aws-lambda-runner'
   s.version     = '1.1.1'
-  s.date        = '2015-01-09'
+  s.date        = '2015-07-09'
   s.summary     = 'AWS Lambda testing helper'
   s.description = 'Trigger AWS Lambda functions without deploying to AWS'
   s.homepage    = 'https://github.com/bbc/aws-lambda-runner'
@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.email       = []
 
   s.files       = Dir['lib/**/*.rb', 'lib/*.json', 'js/*.json', 'js/*.js']
+  s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 
   s.test_files  = %w( )
 
