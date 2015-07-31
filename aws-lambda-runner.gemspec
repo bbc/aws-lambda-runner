@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.email       = []
 
   s.files       = Dir['lib/**/*.rb', 'lib/*.json', 'js/*.json', 'js/*.js']
+  s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 
   s.test_files  = %w( )
 
