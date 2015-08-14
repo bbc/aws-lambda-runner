@@ -4,6 +4,7 @@ var url = require('url');
 var next_id = 0;
 var done = {};
 var errors = {};
+var successes = {};
 var timeout = {};
 
 exports.request = function(req, res, opts, handler) {
@@ -25,6 +26,8 @@ exports.request = function(req, res, opts, handler) {
           if (err) {
             errors[id] = err;
             console.warn('Error:', err);
+          } else {
+            successes[id] = message;
           }
           console.info('Finished:', message);
           done[id] = true;
@@ -51,6 +54,7 @@ exports.request = function(req, res, opts, handler) {
       getOutput = errors[request_id];
     } else if (done[request_id]) {
       status = 201;
+      getOutput = successes[request_id];
     }
     res.writeHead(status, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(getOutput) + '\n');

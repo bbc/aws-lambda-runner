@@ -60,6 +60,18 @@ describe('request', function() {
     req2.emit('end');
   });
 
+  it('should signal success', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      var run_id = parseInt(res._getString());
+      context.done(null, ['goodbye']);
+      var responseData = check_progress(run_id, 201);
+      assert.deepEqual(responseData, ['goodbye']);
+      done();
+    });
+    req.emit('data', '"hello world"');
+    req.emit('end');
+  });
+
   it('should signal an error', function(done) {
     request.request(req, res, opts, function(data, context) {
       var run_id = parseInt(res._getString());
