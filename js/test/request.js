@@ -1,9 +1,5 @@
-
 var request = require('../request.js');
 
-var events = require('events');
-
-var http = require('http');
 var mockRes = require('mock-res');
 var mockReq = require('mock-req');
 var assert = require('assert');
