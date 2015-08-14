@@ -9,7 +9,7 @@ var timeout = {};
 exports.request = function(req, res, opts, handler) {
   if (req.method === 'POST') {
     var id = next_id;
-    var output = '';
+    var postOutput = '';
     next_id += 1;
     req.on('data', function(chunk) {
       setTimeout(function() {
@@ -17,10 +17,10 @@ exports.request = function(req, res, opts, handler) {
           timeout[id] = true;
         }
       }, opts.timeout);
-      output += chunk.toString()
+      postOutput += chunk.toString();
     });
     req.on('end', function(chunk) {
-      handler(JSON.parse(output), {
+      handler(JSON.parse(postOutput), {
         done: function(err, message) {
           if (err) {
             errors[id] = err;
@@ -42,17 +42,17 @@ exports.request = function(req, res, opts, handler) {
   } else if (req.method === 'GET') {
     var request_id = parseInt(url.parse(req.url, true).query.id);
     var status = 200;
-    var output = '';
+    var getOutput = '';
     if (timeout[request_id]) {
       status = 504;
     } else if (errors[request_id]) {
       status = 502;
-      output = errors[request_id];
+      getOutput = errors[request_id];
     } else if (done[request_id]) {
       status = 201;
     }
     res.writeHead(status, {'Content-Type': 'text/plain'});
-    res.end(output + '\n');
+    res.end(getOutput + '\n');
   } else {
     res.writeHead(500, {'Content-Type': 'text/plain'});
     res.end('Not implemented: ' + req.method + '\n');
