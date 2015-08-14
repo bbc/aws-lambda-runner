@@ -36,7 +36,8 @@ describe('request', function() {
 
       done();
     });
-    req.emit('data', '"hello world"');
+    req.emit('data', '"hello');
+    req.emit('data', ' world"');
     req.emit('end');
   });
 
