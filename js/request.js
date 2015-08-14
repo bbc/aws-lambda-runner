@@ -43,7 +43,7 @@ exports.request = function(req, res, opts, handler) {
   } else if (req.method === 'GET') {
     var request_id = parseInt(url.parse(req.url, true).query.id);
     var status = 200;
-    var getOutput = '';
+    var getOutput = null;
     if (timeout[request_id]) {
       status = 504;
     } else if (errors[request_id]) {
@@ -52,8 +52,8 @@ exports.request = function(req, res, opts, handler) {
     } else if (done[request_id]) {
       status = 201;
     }
-    res.writeHead(status, {'Content-Type': 'text/plain'});
-    res.end(getOutput + '\n');
+    res.writeHead(status, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify(getOutput) + '\n');
   } else {
     res.writeHead(500, {'Content-Type': 'text/plain'});
     res.end('Not implemented: ' + req.method + '\n');

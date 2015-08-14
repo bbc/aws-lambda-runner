@@ -14,7 +14,7 @@ var check_progress = function(run_id, code) {
   var done_response = new mockRes();
   request.request(new mockReq({method: 'GET', url: '/?id=' + run_id}), done_response, opts, null);
   assert.equal(done_response.statusCode, code);
-  return done_response;
+  return JSON.parse(done_response._getString());
 };
 
 describe('request', function() {
@@ -63,9 +63,9 @@ describe('request', function() {
   it('should signal an error', function(done) {
     request.request(req, res, opts, function(data, context) {
       var run_id = parseInt(res._getString());
-      context.done('an error', 'goodbye');
-      var res2 = check_progress(run_id, 502);
-      assert.equal(res2._getString(), 'an error\n');
+      context.done({an: 'error'}, 'goodbye');
+      var responseData = check_progress(run_id, 502);
+      assert.deepEqual(responseData, {an: 'error'});
       done();
     });
     req.emit('data', '"hello world"');
