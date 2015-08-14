@@ -34,6 +34,7 @@ exports.request = function(req, res, opts, handler) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end(String(id));
   } else if (req.method === 'DELETE') {
+    // FIXME untested
     res.writeHead(202, {'Content-Type': 'text/plain'});
     var terminationMessage = 'Terminating server at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler;
     res.end(terminationMessage + '\n');
