@@ -50,21 +50,19 @@ module LambdaRunner
       "http://localhost:#{@port}/"
     end
 
-    def wait(response)
-      case response.code
-      when 201 then false
-      when 200 then true
-      when 504 then fail 'timeout'
-      when 502 then fail response
-      else fail "unknown response #{response.code}"
-      end
-    end
-
     def send(message)
       id = RestClient.post(url, message, content_type: :json).to_str
       loop do
-        wait(RestClient.get(url, params: { id: id })) || break
-        sleep(0.1)
+        response = RestClient.get(url, params: { id: id })
+        data = JSON.parse('['+response.body+']').first
+
+        case response.code
+        when 200 then sleep(0.1)
+        when 201 then return data
+        when 502 then fail data
+        when 504 then fail 'timeout'
+        else fail "unknown response #{response.code}"
+        end
       end
     end
 

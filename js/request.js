@@ -47,15 +47,17 @@ exports.request = function(req, res, opts, handler) {
     var request_id = parseInt(url.parse(req.url, true).query.id);
     var status = 200;
     var getOutput = null;
-    if (timeout[request_id]) {
-      status = 504;
+
+    if (successes[request_id]) {
+      status = 201;
+      getOutput = successes[request_id];
     } else if (errors[request_id]) {
       status = 502;
       getOutput = errors[request_id];
-    } else if (done[request_id]) {
-      status = 201;
-      getOutput = successes[request_id];
+    } else if (timeout[request_id]) {
+      status = 504;
     }
+
     res.writeHead(status, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(getOutput) + '\n');
   } else {
