@@ -41,6 +41,7 @@ describe('request', function() {
       done();
     });
     req.emit('data', '"hello world"');
+    req.emit('end');
   });
 
   it('should accept multiple POSTs with data and run', function(done) {
@@ -56,8 +57,10 @@ describe('request', function() {
       context.done(false, 'multiple: second');
       check_progress(parseInt(res2._getString()), 201);
       req.emit('data', '""');
+      req.emit('end');
     });
     req2.emit('data', '""');
+    req2.emit('end');
   });
 
   it('should signal an error', function(done) {
@@ -69,6 +72,7 @@ describe('request', function() {
       done();
     });
     req.emit('data', '"hello world"');
+    req.emit('end');
   });
 
   it('should timeout', function(done) {
@@ -83,6 +87,7 @@ describe('request', function() {
       }, 10);
     });
     req.emit('data', '"hello world"');
+    req.emit('end');
   });
 
 });
