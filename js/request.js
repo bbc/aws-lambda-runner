@@ -1,7 +1,7 @@
 var url = require('url');
 
 var next_id = 0;
-// results[id] = { completed: [ errorValue, successValue ], timedOut: bool };
+// results[id] = { threw: error, completed: [ errorValue, successValue ], timedOut: bool };
 var results = {};
 
 exports.request = function(req, res, opts, handler) {
@@ -37,15 +37,21 @@ exports.request = function(req, res, opts, handler) {
       res.writeHead(200, {'Content-Type': 'text/plain'});
       res.end(String(id));
 
-      handler(requestObject, {
-        done: function(err, message) {
-          results[id].completed = [ err, message ];
-          if (err) {
-            console.warn('Error:', err);
+      try {
+        handler(requestObject, {
+          done: function(err, message) {
+            results[id].completed = [ err, message ];
+            if (err) {
+              console.warn('Error:', err);
+            }
+            console.info('Finished:', message);
           }
-          console.info('Finished:', message);
-        }
-      });
+        });
+      } catch (e) {
+        console.log("Handler crashed", e);
+        results[id].threw = e;
+      }
+
     });
 
   } else if (req.method === 'DELETE') {
@@ -76,6 +82,9 @@ exports.request = function(req, res, opts, handler) {
           status = 201;
           responseBody = result.completed[1];
         }
+      } else if (result.threw) {
+        status = 500;
+          responseBody = result.threw.toString();
       } else if (result.timedOut) {
         status = 504;
       } else {

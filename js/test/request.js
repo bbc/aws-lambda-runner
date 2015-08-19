@@ -118,4 +118,21 @@ describe('request', function() {
     assert.equal(res.statusCode, 400);
   });
 
+  it('should fail the job if the handler throws', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      throw new Error('bang');
+    });
+    req.emit('data', '[]');
+    req.emit('end');
+
+    setTimeout(function() {
+      var run_id = parseInt(res._getString());
+      var res2 = new mockRes();
+      request.request(new mockReq({method: 'GET', url: '/?id=' + run_id}), res2, opts, null);
+      assert.equal(res2.statusCode, 500);
+      assert.equal(res2._getString(), '"Error: bang"\n');
+      done();
+    }, 10);
+  });
+
 });

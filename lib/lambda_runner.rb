@@ -59,6 +59,7 @@ module LambdaRunner
         case response.code
         when 200 then sleep(0.1)
         when 201 then return data
+        when 500 then fail data
         when 502 then fail data
         when 504 then fail 'timeout'
         else fail "unknown response #{response.code}"
