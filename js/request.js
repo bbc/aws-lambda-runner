@@ -10,7 +10,7 @@ var timeout = {};
 exports.request = function(req, res, opts, handler) {
   if (req.method === 'POST') {
     var id = next_id;
-    var postOutput = '';
+    var requestBody = '';
     next_id += 1;
     req.on('data', function(chunk) {
       setTimeout(function() {
@@ -18,10 +18,10 @@ exports.request = function(req, res, opts, handler) {
           timeout[id] = true;
         }
       }, opts.timeout);
-      postOutput += chunk.toString();
+      requestBody += chunk.toString();
     });
     req.on('end', function(chunk) {
-      handler(JSON.parse(postOutput), {
+      handler(JSON.parse(requestBody), {
         done: function(err, message) {
           if (err) {
             errors[id] = err;
@@ -46,20 +46,20 @@ exports.request = function(req, res, opts, handler) {
   } else if (req.method === 'GET') {
     var request_id = parseInt(url.parse(req.url, true).query.id);
     var status = 200;
-    var getOutput = null;
+    var responseBody = null;
 
     if (successes[request_id]) {
       status = 201;
-      getOutput = successes[request_id];
+      responseBody = successes[request_id];
     } else if (errors[request_id]) {
       status = 502;
-      getOutput = errors[request_id];
+      responseBody = errors[request_id];
     } else if (timeout[request_id]) {
       status = 504;
     }
 
     res.writeHead(status, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify(getOutput) + '\n');
+    res.end(JSON.stringify(responseBody) + '\n');
   } else {
     res.writeHead(500, {'Content-Type': 'text/plain'});
     res.end('Not implemented: ' + req.method + '\n');
