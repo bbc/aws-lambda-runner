@@ -31,7 +31,7 @@ describe('request', function() {
       assert.equal(data, "hello world");
       var run_id = parseInt(res._getString());
       check_progress(run_id, 200);
-      context.done(false, 'goodbye');
+      context.done(null, 'goodbye');
       check_progress(run_id, 201);
 
       done();
@@ -43,7 +43,7 @@ describe('request', function() {
 
   it('should accept multiple POSTs with data and run', function(done) {
     request.request(req, res, opts, function(data, context) {
-      context.done(false, 'multiple: first');
+      context.done(null, 'multiple: first');
       check_progress(parseInt(res._getString()), 201);
       done();
     });
@@ -51,7 +51,7 @@ describe('request', function() {
     var req2 = post();
     var res2 = new mockRes();
     request.request(req2, res2, opts, function(data, context) {
-      context.done(false, 'multiple: second');
+      context.done(null, 'multiple: second');
       check_progress(parseInt(res2._getString()), 201);
       req.emit('data', '""');
       req.emit('end');
