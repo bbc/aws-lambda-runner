@@ -111,4 +111,11 @@ describe('request', function() {
     req.emit('end');
   });
 
+  it('should emit 400 if POSTed bad JSON', function() {
+    request.request(req, res, opts, function() {}); // never called
+    req.emit('data', '[');
+    req.emit('end');
+    assert.equal(res.statusCode, 400);
+  });
+
 });

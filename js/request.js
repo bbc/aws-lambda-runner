@@ -24,7 +24,20 @@ exports.request = function(req, res, opts, handler) {
         }
       }, opts.timeout);
 
-      handler(JSON.parse(requestBody), {
+      var requestObject;
+      try {
+        requestObject = JSON.parse(requestBody);
+      } catch (e) {
+        console.log("POSTed bad json: " + e.toString());
+        res.writeHead(400, {'Content-Type': 'text/plain'});
+        res.end(e.toString());
+        return;
+      }
+
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      res.end(String(id));
+
+      handler(requestObject, {
         done: function(err, message) {
           results[id].completed = [ err, message ];
           if (err) {
@@ -34,9 +47,6 @@ exports.request = function(req, res, opts, handler) {
         }
       });
     });
-
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(String(id));
 
   } else if (req.method === 'DELETE') {
 
