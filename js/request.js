@@ -14,15 +14,16 @@ exports.request = function(req, res, opts, handler) {
     var requestBody = '';
 
     req.on('data', function(chunk) {
+      requestBody += chunk.toString();
+    });
+
+    req.on('end', function(chunk) {
       setTimeout(function() {
         if (!results[id].completed) {
           results[id].timedOut = true;
         }
       }, opts.timeout);
-      requestBody += chunk.toString();
-    });
 
-    req.on('end', function(chunk) {
       handler(JSON.parse(requestBody), {
         done: function(err, message) {
           results[id].completed = [ err, message ];
