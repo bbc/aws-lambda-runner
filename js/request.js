@@ -95,7 +95,6 @@ exports.request = function(req, res, opts, handler) {
 
     res.writeHead(status, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(responseBody) + '\n');
-    console.log(request_id, status, result);
 
   } else {
 
