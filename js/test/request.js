@@ -99,4 +99,16 @@ describe('request', function() {
     req.emit('end');
   });
 
+  it('should give 404 on no such job', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      var run_id = parseInt(res._getString());
+      var res2 = new mockRes();
+      request.request(new mockReq({method: 'GET', url: '/?id=' + (1+run_id)}), res2, opts, null);
+      assert.equal(res2.statusCode, 404);
+      done();
+    });
+    req.emit('data', '{}');
+    req.emit('end');
+  });
+
 });

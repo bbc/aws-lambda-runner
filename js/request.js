@@ -51,21 +51,31 @@ exports.request = function(req, res, opts, handler) {
     var request_id = parseInt(url.parse(req.url, true).query.id);
     var result = results[request_id];
 
-    var status = 200;
+    var status = null;
     var responseBody = null;
 
-    if (result.completed && result.completed[0] === null) {
-      status = 201;
-      responseBody = result.completed[1];
-    } else if (result.completed) {
-      status = 502;
-      responseBody = result.completed[0];
-    } else if (result.timedOut) {
-      status = 504;
+    if (result === undefined) {
+      status = 404;
+    } else {
+      if (result.completed) {
+        if (result.completed[0] !== null) {
+          status = 502;
+          responseBody = result.completed[0];
+        } else {
+          status = 201;
+          responseBody = result.completed[1];
+        }
+      } else if (result.timedOut) {
+        status = 504;
+      } else {
+        // still in progress
+        status = 200;
+      }
     }
 
     res.writeHead(status, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(responseBody) + '\n');
+    console.log(request_id, status, result);
 
   } else {
 
