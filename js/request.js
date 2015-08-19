@@ -1,23 +1,22 @@
 var url = require('url');
 
 var next_id = 0;
-var done = {};
-var errors = {};
-var successes = {};
-var timeout = {};
+// results[id] = { completed: [ errorValue, successValue ], timedOut: bool };
+var results = {};
 
 exports.request = function(req, res, opts, handler) {
 
   if (req.method === 'POST') {
 
-    var id = next_id;
+    var id = ++next_id;
+    results[id] = {};
+
     var requestBody = '';
-    next_id += 1;
 
     req.on('data', function(chunk) {
       setTimeout(function() {
-        if (!done[id]) {
-          timeout[id] = true;
+        if (!results[id].completed) {
+          results[id].timedOut = true;
         }
       }, opts.timeout);
       requestBody += chunk.toString();
@@ -26,14 +25,11 @@ exports.request = function(req, res, opts, handler) {
     req.on('end', function(chunk) {
       handler(JSON.parse(requestBody), {
         done: function(err, message) {
+          results[id].completed = [ err, message ];
           if (err) {
-            errors[id] = err;
             console.warn('Error:', err);
-          } else {
-            successes[id] = message;
           }
           console.info('Finished:', message);
-          done[id] = true;
         }
       });
     });
@@ -53,16 +49,18 @@ exports.request = function(req, res, opts, handler) {
   } else if (req.method === 'GET') {
 
     var request_id = parseInt(url.parse(req.url, true).query.id);
+    var result = results[request_id];
+
     var status = 200;
     var responseBody = null;
 
-    if (successes[request_id]) {
+    if (result.completed && result.completed[0] === null) {
       status = 201;
-      responseBody = successes[request_id];
-    } else if (errors[request_id]) {
+      responseBody = result.completed[1];
+    } else if (result.completed) {
       status = 502;
-      responseBody = errors[request_id];
-    } else if (timeout[request_id]) {
+      responseBody = result.completed[0];
+    } else if (result.timedOut) {
       status = 504;
     }
 
