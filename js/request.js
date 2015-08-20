@@ -44,7 +44,6 @@ exports.request = function(req, res, opts, handler) {
             if (err) {
               console.warn('Error:', err);
             }
-            console.info('Finished:', message);
           }
         });
       } catch (e) {
