@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.authors     = ['andrew wheat', 'tristan hill', 'stuart hicks']
   s.email       = []
 
-  s.files       = Dir['lib/**/*.rb', 'lib/*.json', 'js/*.json', 'js/*.js']
+  s.files       = Dir['lib/**/*.rb', 'lib/*.json', 'js/*.json', 'js/*.js', 'spec/*.rb']
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 
   s.test_files  = %w( )

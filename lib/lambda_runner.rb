@@ -89,10 +89,10 @@ module LambdaRunner
     def self.sns_event(topicArn, messageId, timestamp, messageBody)
       event = load_json('sample_sns_req.json')
       event['Records'].each do |record|
-        record['Sns']['topicArn'] = topicArn
-        record['Sns']['messageId'] = messageId
-        record['Sns']['timestamp'] = timestamp
-        record['Sns']['messageBody'] = messageBody
+        record['Sns']['TopicArn'] = topicArn
+        record['Sns']['MessageId'] = messageId
+        record['Sns']['Timestamp'] = timestamp
+        record['Sns']['Message'] = messageBody
       end
       event.to_json
     end
