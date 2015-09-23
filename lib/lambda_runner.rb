@@ -75,7 +75,7 @@ module LambdaRunner
   # aws events
   class Events
     def self.s3_event(bucket, key, local_path)
-      event = load_json('sample_req.json')
+      event = load_json('sample_s3_event.json')
       event['Records'].each do |record|
         record['file'] = { 'path' => local_path }
         record['s3']['bucket'].update('name' => bucket,
@@ -87,7 +87,7 @@ module LambdaRunner
     end
 
     def self.sns_event(topicArn, messageId, timestamp, messageBody)
-      event = load_json('sample_sns_req.json')
+      event = load_json('sample_sns_event.json')
       event['Records'].each do |record|
         record['Sns']['TopicArn'] = topicArn
         record['Sns']['MessageId'] = messageId
