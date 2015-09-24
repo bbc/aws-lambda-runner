@@ -1,0 +1,8 @@
+{
+  "Service": "Amazon S3",
+  "Event": "s3:TestEvent",
+  "Time": "2015-09-23T16:39:51.979Z",
+  "Bucket": "intmodavsharedresources-filearrivalbucket-ls1bvamkp7id",
+  "RequestId": "2A687D3C50F3E334",
+  "HostId": "1qIu6Wjd0KG+PofLtvbNgHn70JiKTpypO4QCfzuwCXusN0Gllv22O6SVx0ffhGL4Zl7pcJqEbXU="
+}
