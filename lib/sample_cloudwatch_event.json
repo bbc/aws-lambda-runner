@@ -1,0 +1,26 @@
+{
+  "AWSAccountId": "475907659466",
+  "AlarmDescription": null,
+  "AlarmName": "cw-sns-lambda-test-alarm",
+  "NewStateReason": "Insufficient Data: 1 datapoint was unknown.",
+  "NewStateValue": "INSUFFICIENT_DATA",
+  "OldStateValue": "ALARM",
+  "Region": "EU - Ireland",
+  "StateChangeTime": "2015-09-30T12:08:32.313+0000",
+  "Trigger": {
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+      {
+        "name": "FunctionName",
+        "value": "echo"
+      }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "Invocations",
+    "Namespace": "AWS/Lambda",
+    "Period": 60,
+    "Statistic": "AVERAGE",
+    "Threshold": 0,
+    "Unit": null
+  }
+}
