@@ -215,4 +215,30 @@ describe('request', function() {
     req.emit('end');
   });
 
+  it('should consider undefined error to be like null', function (done) {
+    request.request(req, res, opts, function(data, context) {
+      context.done(undefined, [7]);
+      process.nextTick(function () {
+        var ans = check_progress(parseInt(res._getString()), 201);
+        assert.deepEqual(ans, [7]);
+        done();
+      });
+    });
+    req.emit('data', '{"event":{}}');
+    req.emit('end');
+  });
+
+  it('should replace undefined success by null so that it makes valid JSON', function (done) {
+    request.request(req, res, opts, function(data, context) {
+      context.done(null, undefined);
+      process.nextTick(function () {
+        var ans = check_progress(parseInt(res._getString()), 201);
+        assert(ans === null);
+        done();
+      });
+    });
+    req.emit('data', '{"event":{}}');
+    req.emit('end');
+  });
+
 });

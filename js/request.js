@@ -97,7 +97,7 @@ exports.request = function(req, res, opts, handler) {
       status = 404;
     } else {
       if (result.completed) {
-        if (result.completed[0] !== null) {
+        if (result.completed[0] !== null && result.completed[0] !== undefined) {
           status = 502;
           responseBody = result.completed[0];
         } else {
@@ -114,6 +114,9 @@ exports.request = function(req, res, opts, handler) {
         status = 200;
       }
     }
+
+    // non-standard stringification of undefined
+    if (responseBody === undefined) responseBody = null;
 
     res.writeHead(status, {'Content-Type': 'application/json'});
     res.end(JSON.stringify(responseBody) + '\n');
