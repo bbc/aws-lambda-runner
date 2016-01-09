@@ -72,12 +72,36 @@ describe('request', function() {
     req.emit('end');
   });
 
-  it('should signal an error', function(done) {
+  it('should signal an error via done()', function(done) {
     request.request(req, res, opts, function(data, context) {
       var run_id = parseInt(res._getString());
       context.done({an: 'error'}, 'goodbye');
       var responseData = check_progress(run_id, 502);
       assert.deepEqual(responseData, {an: 'error'});
+      done();
+    });
+    req.emit('data', '"hello world"');
+    req.emit('end');
+  });
+
+  it('should signal an error via fail()', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      var run_id = parseInt(res._getString());
+      context.fail({an: 'error'});
+      var responseData = check_progress(run_id, 502);
+      assert.deepEqual(responseData, {an: 'error'});
+      done();
+    });
+    req.emit('data', '"hello world"');
+    req.emit('end');
+  });
+
+  it('should succeed via succeed()', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      var run_id = parseInt(res._getString());
+      context.succeed({a: 'good thing'});
+      var responseData = check_progress(run_id, 201);
+      assert.deepEqual(responseData, {a: 'good thing'});
       done();
     });
     req.emit('data', '"hello world"');

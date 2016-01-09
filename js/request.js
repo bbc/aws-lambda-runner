@@ -37,15 +37,20 @@ exports.request = function(req, res, opts, handler) {
       res.writeHead(200, {'Content-Type': 'text/plain'});
       res.end(String(id));
 
-      try {
-        handler(requestObject, {
-          done: function(err, message) {
-            results[id].completed = [ err, message ];
-            if (err) {
-              console.warn('Error:', err);
-            }
+      var context = {
+        done: function(err, message) {
+          results[id].completed = [ err, message ];
+          if (err) {
+            console.warn('Error:', err);
           }
-        });
+        }
+      };
+
+      context.fail = function(err) { context.done(err, null); };
+      context.succeed = function(data) { context.done(null, data); };
+
+      try {
+        handler(requestObject, context);
       } catch (e) {
         console.log("Handler crashed", e);
         results[id].threw = e;
