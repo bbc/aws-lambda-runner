@@ -37,13 +37,18 @@ exports.request = function(req, res, opts, handler) {
       res.writeHead(200, {'Content-Type': 'text/plain'});
       res.end(String(id));
 
+      var approximateEndTime = (new Date().getTime()) + opts.timeout;
+
       var context = {
         done: function(err, message) {
           results[id].completed = [ err, message ];
           if (err) {
             console.warn('Error:', err);
           }
-        }
+        },
+        getRemainingTimeInMillis: function () {
+          return approximateEndTime - (new Date().getTime());
+        },
       };
 
       context.fail = function(err) { context.done(err, null); };

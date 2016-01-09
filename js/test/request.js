@@ -109,7 +109,7 @@ describe('request', function() {
   });
 
   it('should timeout', function(done) {
-    opts.timeout = 1;
+    var opts = { timeout: 1 };
     request.request(req, res, opts, function(data, context) {
       var run_id = parseInt(res._getString());
       setTimeout(function() {
@@ -157,6 +157,26 @@ describe('request', function() {
       assert.equal(res2._getString(), '"Error: bang"\n');
       done();
     }, 10);
+  });
+
+  it('should support getRemainingTimeInMillis', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      var r1 = context.getRemainingTimeInMillis();
+      assert(r1 <= 1000);
+      assert(r1 > 800);
+
+      setTimeout(function () {
+        var r2 = context.getRemainingTimeInMillis();
+        assert(r2 <= 600);
+        assert(r2 > 400);
+
+        context.succeed();
+        done();
+      }, 500);
+
+    });
+    req.emit('data', '{}');
+    req.emit('end');
   });
 
 });
