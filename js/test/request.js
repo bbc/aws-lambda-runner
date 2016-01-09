@@ -179,4 +179,22 @@ describe('request', function() {
     req.emit('end');
   });
 
+  it('should provide the context properties', function(done) {
+    request.request(req, res, opts, function(data, context) {
+      assert(context.functionName.match(/^[A-Za-z0-9_-]+$/));
+      assert(context.functionVersion.match(/^\S+$/));
+      assert(context.invokedFunctionArn.match(/^arn:aws:lambda:[a-z0-9-]+:\d+:function:[A-Za-z0-9_-]+:\S+$/));
+      assert(typeof(context.memoryLimitInMB) === 'number');
+      assert(context.awsRequestId.match(/^[0-9a-f-]+$/));
+      assert(context.logGroupName.match(/^\/aws\/lambda\/[A-Za-z0-9_-]+$/));
+      assert(context.logStreamName.match(/^\S+$/));
+
+      // not tested: identity
+      // not tested: clientContext
+      done();
+    });
+    req.emit('data', '{}');
+    req.emit('end');
+  });
+
 });

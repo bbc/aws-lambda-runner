@@ -49,6 +49,15 @@ exports.request = function(req, res, opts, handler) {
         getRemainingTimeInMillis: function () {
           return approximateEndTime - (new Date().getTime());
         },
+
+        // Fixed, but reasonably representative
+        functionName: "via-aws-lambda-runner",
+        functionVersion: "$LATEST",
+        invokedFunctionArn: "arn:aws:lambda:xx-central-1:000000000000:function:via-aws-lambda-runner:$LATEST",
+        memoryLimitInMB: 100,
+        awsRequestId: "00000000-0000-0000-0000-000000000000",
+        logGroupName: "/aws/lambda/via-aws-lambda-runner",
+        logStreamName: "some-log-stream-name",
       };
 
       context.fail = function(err) { context.done(err, null); };
