@@ -50,8 +50,9 @@ module LambdaRunner
       "http://localhost:#{@port}/"
     end
 
-    def send(message)
-      id = RestClient.post(url, message, content_type: :json).to_str
+    def send(message, context = {})
+      payload = JSON.generate({ event: JSON.parse(message), context: context })
+      id = RestClient.post(url, payload, content_type: :json).to_str
       loop do
         response = RestClient.get(url, params: { id: id })
         data = JSON.parse('['+response.body+']').first

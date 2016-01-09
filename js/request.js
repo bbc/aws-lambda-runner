@@ -1,3 +1,4 @@
+var merge = require('merge');
 var url = require('url');
 
 var next_id = 0;
@@ -63,8 +64,11 @@ exports.request = function(req, res, opts, handler) {
       context.fail = function(err) { context.done(err, null); };
       context.succeed = function(data) { context.done(null, data); };
 
+      var event = requestObject.event;
+      merge(context, requestObject.context || {});
+
       try {
-        handler(requestObject, context);
+        handler(event, context);
       } catch (e) {
         console.log("Handler crashed", e);
         results[id].threw = e;

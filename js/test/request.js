@@ -36,8 +36,10 @@ describe('request', function() {
 
       done();
     });
+    req.emit('data', '{"event":');
     req.emit('data', '"hello');
     req.emit('data', ' world"');
+    req.emit('data', '}');
     req.emit('end');
   });
 
@@ -53,10 +55,10 @@ describe('request', function() {
     request.request(req2, res2, opts, function(data, context) {
       context.done(null, 'multiple: second');
       check_progress(parseInt(res2._getString()), 201);
-      req.emit('data', '""');
+      req.emit('data', '{"event":{}}');
       req.emit('end');
     });
-    req2.emit('data', '""');
+    req2.emit('data', '{"event":{}}');
     req2.emit('end');
   });
 
@@ -68,7 +70,7 @@ describe('request', function() {
       assert.deepEqual(responseData, ['goodbye']);
       done();
     });
-    req.emit('data', '"hello world"');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -80,7 +82,7 @@ describe('request', function() {
       assert.deepEqual(responseData, {an: 'error'});
       done();
     });
-    req.emit('data', '"hello world"');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -92,7 +94,7 @@ describe('request', function() {
       assert.deepEqual(responseData, {an: 'error'});
       done();
     });
-    req.emit('data', '"hello world"');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -104,7 +106,7 @@ describe('request', function() {
       assert.deepEqual(responseData, {a: 'good thing'});
       done();
     });
-    req.emit('data', '"hello world"');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -119,7 +121,7 @@ describe('request', function() {
         done();
       }, 10);
     });
-    req.emit('data', '"hello world"');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -131,7 +133,7 @@ describe('request', function() {
       assert.equal(res2.statusCode, 404);
       done();
     });
-    req.emit('data', '{}');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -146,7 +148,7 @@ describe('request', function() {
     request.request(req, res, opts, function(data, context) {
       throw new Error('bang');
     });
-    req.emit('data', '[]');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
 
     setTimeout(function() {
@@ -175,7 +177,7 @@ describe('request', function() {
       }, 500);
 
     });
-    req.emit('data', '{}');
+    req.emit('data', '{"event":{}}');
     req.emit('end');
   });
 
@@ -193,7 +195,23 @@ describe('request', function() {
       // not tested: clientContext
       done();
     });
-    req.emit('data', '{}');
+    req.emit('data', '{"event":{}}');
+    req.emit('end');
+  });
+
+  it('should allow the context to be overridden', function (done) {
+    request.request(req, res, opts, function(data, context) {
+      assert.equal(context.functionName, 'my-function');
+      assert.equal(context.invokedFunctionArn, 'arn:aws:lambda:eu-west-1:000000000002:function:my-function:$LATEST');
+      done();
+    });
+
+    var c = {
+      functionName: 'my-function',
+      invokedFunctionArn: 'arn:aws:lambda:eu-west-1:000000000002:function:my-function:$LATEST',
+    };
+
+    req.emit('data', JSON.stringify({ event: {}, context: c }));
     req.emit('end');
   });
 
