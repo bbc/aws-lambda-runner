@@ -1,5 +1,6 @@
 var request = require('../request.js');
 
+var merge = require('merge');
 var mockRes = require('mock-res');
 var mockReq = require('mock-req');
 var assert = require('assert');
@@ -24,6 +25,9 @@ describe('request', function() {
   beforeEach(function(){
     req = post();
     res = new mockRes();
+    delete process.env.AWS_DEFAULT_REGION;
+    delete process.env.AWS_REGION;
+    delete process.env.AMAZON_REGION;
   });
 
   it('should accept a POST with data and run', function(done) {
@@ -239,6 +243,45 @@ describe('request', function() {
     });
     req.emit('data', '{"event":{}}');
     req.emit('end');
+  });
+
+  var test_region = function (env, expectedRegion, done) {
+    request.request(req, res, opts, function(data, context) {
+      assert.equal(context.invokedFunctionArn.split(/:/)[3], expectedRegion);
+      done();
+    });
+
+    merge(process.env, env);
+    req.emit('data', JSON.stringify({ event: {} }));
+    req.emit('end');
+  };
+
+  it('should use AWS_DEFAULT_REGION 1st', function (done) {
+      test_region({
+          AWS_DEFAULT_REGION: "xx-default-1",
+          AWS_REGION: "xx-awsregion-2",
+          AMAZON_REGION: "xx-amazonregion-3",
+      }, "xx-default-1", done);
+  });
+
+  it('should use AWS_REGION 2nd', function (done) {
+      test_region({
+          // AWS_DEFAULT_REGION: undefined,
+          AWS_REGION: "xx-awsregion-2",
+          AMAZON_REGION: "xx-amazonregion-3",
+      }, "xx-awsregion-2", done);
+  });
+
+  it('should use AMAZON_REGION 3rd', function (done) {
+      test_region({
+          // AWS_DEFAULT_REGION: undefined,
+          // AWS_REGION: "xx-awsregion-2",
+          AMAZON_REGION: "xx-amazonregion-3",
+      }, "xx-amazonregion-3", done);
+  });
+
+  it('should fall back to a dummy region', function (done) {
+      test_region({}, "xx-dummy-0", done);
   });
 
 });

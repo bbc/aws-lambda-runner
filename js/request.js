@@ -5,6 +5,10 @@ var next_id = 0;
 // results[id] = { threw: error, completed: [ errorValue, successValue ], timedOut: bool };
 var results = {};
 
+var region = function () {
+    return process.env.AWS_DEFAULT_REGION || process.env.AWS_REGION || process.env.AMAZON_REGION || "xx-dummy-0";
+};
+
 exports.request = function(req, res, opts, handler) {
 
   if (req.method === 'POST') {
@@ -54,7 +58,7 @@ exports.request = function(req, res, opts, handler) {
         // Fixed, but reasonably representative
         functionName: "via-aws-lambda-runner",
         functionVersion: "$LATEST",
-        invokedFunctionArn: "arn:aws:lambda:xx-central-1:000000000000:function:via-aws-lambda-runner:$LATEST",
+        invokedFunctionArn: "arn:aws:lambda:" + region() + ":000000000000:function:via-aws-lambda-runner:$LATEST",
         memoryLimitInMB: 100,
         awsRequestId: "00000000-0000-0000-0000-000000000000",
         logGroupName: "/aws/lambda/via-aws-lambda-runner",
