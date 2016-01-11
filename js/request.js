@@ -59,55 +59,59 @@ var makeContextObject = function (timeout, overrides) {
   return context;
 };
 
+var doCreateJob = function (req, res, opts, handler) {
+  var id = ++next_id;
+  results[id] = new Result();
+
+  var requestBody = '';
+
+  req.on('data', function(chunk) {
+    requestBody += chunk.toString();
+  });
+
+  req.on('end', function(chunk) {
+    setTimeout(function() {
+      results[id].doTimedOut();
+    }, opts.timeout);
+
+    var requestObject;
+    try {
+      requestObject = JSON.parse(requestBody);
+    } catch (e) {
+      console.log("POSTed bad json: " + e.toString());
+      res.writeHead(400, {'Content-Type': 'text/plain'});
+      res.end(e.toString());
+      return;
+    }
+
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(String(id));
+
+    var event = requestObject.event;
+
+    var context = makeContextObject(opts.timeout, requestObject.context || {});
+    context.done = function (err, result) {
+      results[id].doCompletion(err, result);
+      if (err) {
+        console.warn('Error:', err);
+      }
+    };
+
+    try {
+      handler(event, context);
+    } catch (e) {
+      console.log("Handler crashed", e);
+      results[id].doError(e);
+    }
+
+  });
+};
+
 exports.request = function(req, res, opts, handler) {
 
   if (req.method === 'POST') {
 
-    var id = ++next_id;
-    results[id] = new Result();
-
-    var requestBody = '';
-
-    req.on('data', function(chunk) {
-      requestBody += chunk.toString();
-    });
-
-    req.on('end', function(chunk) {
-      setTimeout(function() {
-        results[id].doTimedOut();
-      }, opts.timeout);
-
-      var requestObject;
-      try {
-        requestObject = JSON.parse(requestBody);
-      } catch (e) {
-        console.log("POSTed bad json: " + e.toString());
-        res.writeHead(400, {'Content-Type': 'text/plain'});
-        res.end(e.toString());
-        return;
-      }
-
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end(String(id));
-
-      var event = requestObject.event;
-
-      var context = makeContextObject(opts.timeout, requestObject.context || {});
-      context.done = function (err, result) {
-        results[id].doCompletion(err, result);
-        if (err) {
-          console.warn('Error:', err);
-        }
-      };
-
-      try {
-        handler(event, context);
-      } catch (e) {
-        console.log("Handler crashed", e);
-        results[id].doError(e);
-      }
-
-    });
+    doCreateJob(req, res, opts, handler);
 
   } else if (req.method === 'DELETE') {
 
