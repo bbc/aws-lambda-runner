@@ -3,6 +3,8 @@ var url = require('url');
 
 var next_id = 0;
 // results[id] = { threw: error, completed: [ errorValue, successValue ], timedOut: bool };
+// FIXME: this object grows forever - entries are never removed.  Should they
+// be removed by expiry (time), and/or a REST API call?
 var results = {};
 
 var region = function () {
