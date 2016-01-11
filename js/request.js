@@ -107,6 +107,31 @@ var doCreateJob = function (req, res, opts, handler) {
   });
 };
 
+var getResultStatus = function (result) {
+  var status = null;
+  var responseBody = null;
+
+  if (result.completionValues) {
+    if (result.completionValues[0] !== null && result.completionValues[0] !== undefined) {
+      status = 502;
+      responseBody = result.completionValues[0];
+    } else {
+      status = 201;
+      responseBody = result.completionValues[1];
+    }
+  } else if (result.threw) {
+    status = 500;
+      responseBody = result.threw.toString();
+  } else if (result.timedOut) {
+    status = 504;
+  } else {
+    // still in progress
+    status = 200;
+  }
+  
+  return { status: status, data: responseBody };
+};
+
 exports.request = function(req, res, opts, handler) {
 
   if (req.method === 'POST') {
@@ -126,37 +151,13 @@ exports.request = function(req, res, opts, handler) {
 
     var request_id = parseInt(url.parse(req.url, true).query.id);
     var result = results[request_id];
-
-    var status = null;
-    var responseBody = null;
-
-    if (result === undefined) {
-      status = 404;
-    } else {
-      if (result.completionValues) {
-        if (result.completionValues[0] !== null && result.completionValues[0] !== undefined) {
-          status = 502;
-          responseBody = result.completionValues[0];
-        } else {
-          status = 201;
-          responseBody = result.completionValues[1];
-        }
-      } else if (result.threw) {
-        status = 500;
-          responseBody = result.threw.toString();
-      } else if (result.timedOut) {
-        status = 504;
-      } else {
-        // still in progress
-        status = 200;
-      }
-    }
+    var answer = result ? getResultStatus(result) : { status: 404, data: null };
 
     // non-standard stringification of undefined
-    if (responseBody === undefined) responseBody = null;
+    if (answer.data === undefined) answer.data = null;
 
-    res.writeHead(status, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify(responseBody) + '\n');
+    res.writeHead(answer.status, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify(answer.data) + '\n');
 
   } else {
 
