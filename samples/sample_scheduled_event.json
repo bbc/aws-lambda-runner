@@ -1,11 +1,11 @@
 {
-  "account": "244376974009",
+  "account": "123456789012",
   "detail": {},
   "detail-type": "Scheduled Event",
   "id": "f6a3b160-89b8-45ba-b934-a42790456ad8",
   "region": "eu-west-1",
   "resources": [
-    "arn:aws:events:eu-west-1:244376974009:rule/5min"
+    "arn:aws:events:eu-west-1:123456789012:rule/5min"
   ],
   "source": "aws.events",
   "time": "2015-10-28T09:26:29Z"

@@ -1,5 +1,5 @@
 {
-  "AWSAccountId": "475907659466",
+  "AWSAccountId": "123456789012",
   "AlarmDescription": null,
   "AlarmName": "cw-sns-lambda-test-alarm",
   "NewStateReason": "Insufficient Data: 1 datapoint was unknown.",
