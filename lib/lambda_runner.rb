@@ -84,7 +84,7 @@ module LambdaRunner
         record['s3']['object']['key'] = key
         record
       end
-      event.to_json
+      event
     end
 
     def self.sns_event(topicArn, messageId, timestamp, messageBody)
@@ -95,7 +95,7 @@ module LambdaRunner
         record['Sns']['Timestamp'] = timestamp
         record['Sns']['Message'] = messageBody
       end
-      event.to_json
+      event
     end
   end
 end
