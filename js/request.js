@@ -59,9 +59,32 @@ var makeContextObject = function (timeout, overrides) {
   return context;
 };
 
+var startJob = function (job, requestObject, handler, opts) {
+  setTimeout(function() {
+    job.doTimedOut();
+  }, opts.timeout);
+
+  var event = requestObject.event;
+
+  var context = makeContextObject(opts.timeout, requestObject.context || {});
+  context.done = function (err, result) {
+    job.doCompletion(err, result);
+    if (err) {
+      console.warn('Error:', err);
+    }
+  };
+
+  try {
+    handler(event, context);
+  } catch (e) {
+    console.log("Handler crashed", e);
+    job.doError(e);
+  }
+};
+
 var doCreateJob = function (req, res, opts, handler) {
   var id = ++next_id;
-  jobs[id] = new Job();
+  var job = jobs[id] = new Job();
 
   var requestBody = '';
 
@@ -69,12 +92,9 @@ var doCreateJob = function (req, res, opts, handler) {
     requestBody += chunk.toString();
   });
 
-  req.on('end', function(chunk) {
-    setTimeout(function() {
-      jobs[id].doTimedOut();
-    }, opts.timeout);
-
+  req.on('end', function() {
     var requestObject;
+
     try {
       requestObject = JSON.parse(requestBody);
     } catch (e) {
@@ -87,23 +107,7 @@ var doCreateJob = function (req, res, opts, handler) {
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end(String(id));
 
-    var event = requestObject.event;
-
-    var context = makeContextObject(opts.timeout, requestObject.context || {});
-    context.done = function (err, result) {
-      jobs[id].doCompletion(err, result);
-      if (err) {
-        console.warn('Error:', err);
-      }
-    };
-
-    try {
-      handler(event, context);
-    } catch (e) {
-      console.log("Handler crashed", e);
-      jobs[id].doError(e);
-    }
-
+    startJob(job, requestObject, handler, opts);
   });
 };
 
