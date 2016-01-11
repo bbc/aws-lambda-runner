@@ -4,10 +4,6 @@ require 'json'
 require 'English'
 require 'fileutils'
 
-def load_json(name)
-  File.open(File.join(File.dirname(__FILE__), name)) { |file| return JSON.load(file) }
-end
-
 # runs a nodejs lambda program so the s3 events can be sent to it via http post
 module LambdaRunner
   # abstract for running the program
@@ -84,7 +80,7 @@ module LambdaRunner
         record['s3']['object']['key'] = key
         record
       end
-      event.to_json
+      event
     end
 
     def self.sns_event(topicArn, messageId, timestamp, messageBody)
@@ -95,8 +91,16 @@ module LambdaRunner
         record['Sns']['Timestamp'] = timestamp
         record['Sns']['Message'] = messageBody
       end
-      event.to_json
+      event
     end
+
+    private
+
+    def self.load_json(name)
+      base = File.dirname(File.dirname(__FILE__))
+      File.open(File.join(base, "samples", name)) { |file| return JSON.load(file) }
+    end
+
   end
 end
 
