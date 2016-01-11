@@ -2,10 +2,30 @@ var merge = require('merge');
 var url = require('url');
 
 var next_id = 0;
-// results[id] = { threw: error, completed: [ errorValue, successValue ], timedOut: bool };
 // FIXME: this object grows forever - entries are never removed.  Should they
 // be removed by expiry (time), and/or a REST API call?
 var results = {};
+
+var Result = function () {
+};
+
+Result.prototype.doError = function (error) {
+  if (!this.completionValues && !this.timedOut) {
+    this.threw = error;
+  }
+};
+
+Result.prototype.doCompletion = function (errorValue, successValue) {
+  if (!this.threw && !this.timedOut) {
+    this.completionValues = [ errorValue, successValue ];
+  }
+};
+
+Result.prototype.doTimedOut = function () {
+  if (!this.threw && !this.completionValues) {
+    this.timedOut = true;
+  }
+};
 
 var region = function () {
     return process.env.AWS_DEFAULT_REGION || process.env.AWS_REGION || process.env.AMAZON_REGION || "xx-dummy-0";
@@ -44,7 +64,7 @@ exports.request = function(req, res, opts, handler) {
   if (req.method === 'POST') {
 
     var id = ++next_id;
-    results[id] = {};
+    results[id] = new Result();
 
     var requestBody = '';
 
@@ -54,9 +74,7 @@ exports.request = function(req, res, opts, handler) {
 
     req.on('end', function(chunk) {
       setTimeout(function() {
-        if (!results[id].completed) {
-          results[id].timedOut = true;
-        }
+        results[id].doTimedOut();
       }, opts.timeout);
 
       var requestObject;
@@ -76,7 +94,7 @@ exports.request = function(req, res, opts, handler) {
 
       var context = makeContextObject(opts.timeout, requestObject.context || {});
       context.done = function (err, result) {
-        results[id].completed = [ err, result ];
+        results[id].doCompletion(err, result);
         if (err) {
           console.warn('Error:', err);
         }
@@ -86,7 +104,7 @@ exports.request = function(req, res, opts, handler) {
         handler(event, context);
       } catch (e) {
         console.log("Handler crashed", e);
-        results[id].threw = e;
+        results[id].doError(e);
       }
 
     });
@@ -111,13 +129,13 @@ exports.request = function(req, res, opts, handler) {
     if (result === undefined) {
       status = 404;
     } else {
-      if (result.completed) {
-        if (result.completed[0] !== null && result.completed[0] !== undefined) {
+      if (result.completionValues) {
+        if (result.completionValues[0] !== null && result.completionValues[0] !== undefined) {
           status = 502;
-          responseBody = result.completed[0];
+          responseBody = result.completionValues[0];
         } else {
           status = 201;
-          responseBody = result.completed[1];
+          responseBody = result.completionValues[1];
         }
       } else if (result.threw) {
         status = 500;
