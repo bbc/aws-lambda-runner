@@ -140,24 +140,28 @@ exports.request = function(req, res, opts, handler) {
 
   } else if (req.method === 'DELETE') {
 
-    // FIXME untested
-    res.writeHead(202, {'Content-Type': 'text/plain'});
-    var terminationMessage = 'Terminating server at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler;
-    res.end(terminationMessage + '\n');
-    console.info(terminationMessage);
-    server.close();
+    (function () {
+      // FIXME untested
+      res.writeHead(202, {'Content-Type': 'text/plain'});
+      var terminationMessage = 'Terminating server at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler;
+      res.end(terminationMessage + '\n');
+      console.info(terminationMessage);
+      server.close();
+    })();
 
   } else if (req.method === 'GET') {
 
-    var request_id = parseInt(url.parse(req.url, true).query.id);
-    var result = results[request_id];
-    var answer = result ? getResultStatus(result) : { status: 404, data: null };
+    (function () {
+      var request_id = parseInt(url.parse(req.url, true).query.id);
+      var result = results[request_id];
+      var answer = result ? getResultStatus(result) : { status: 404, data: null };
 
-    // non-standard stringification of undefined
-    if (answer.data === undefined) answer.data = null;
+      // non-standard stringification of undefined
+      if (answer.data === undefined) answer.data = null;
 
-    res.writeHead(answer.status, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify(answer.data) + '\n');
+      res.writeHead(answer.status, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify(answer.data) + '\n');
+    })();
 
   } else {
 
