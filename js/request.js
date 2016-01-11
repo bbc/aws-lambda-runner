@@ -9,6 +9,34 @@ var region = function () {
     return process.env.AWS_DEFAULT_REGION || process.env.AWS_REGION || process.env.AMAZON_REGION || "xx-dummy-0";
 };
 
+var defaultContextObject = function () {
+  return {
+    // Fixed, but reasonably representative
+    functionName: "via-aws-lambda-runner",
+    functionVersion: "$LATEST",
+    invokedFunctionArn: "arn:aws:lambda:" + region() + ":000000000000:function:via-aws-lambda-runner:$LATEST",
+    memoryLimitInMB: 100,
+    awsRequestId: "00000000-0000-0000-0000-000000000000",
+    logGroupName: "/aws/lambda/via-aws-lambda-runner",
+    logStreamName: "some-log-stream-name",
+  };
+};
+
+var makeContextObject = function (timeout, overrides) {
+  var context = merge(true, defaultContextObject(), overrides);
+
+  var approximateEndTime = (new Date().getTime()) + timeout;
+
+  context.getRemainingTimeInMillis = function () {
+    return approximateEndTime - (new Date().getTime());
+  };
+
+  context.fail = function(err) { context.done(err, null); };
+  context.succeed = function(data) { context.done(null, data); };
+
+  return context;
+};
+
 exports.request = function(req, res, opts, handler) {
 
   if (req.method === 'POST') {
@@ -42,34 +70,15 @@ exports.request = function(req, res, opts, handler) {
       res.writeHead(200, {'Content-Type': 'text/plain'});
       res.end(String(id));
 
-      var approximateEndTime = (new Date().getTime()) + opts.timeout;
-
-      var context = {
-        done: function(err, message) {
-          results[id].completed = [ err, message ];
-          if (err) {
-            console.warn('Error:', err);
-          }
-        },
-        getRemainingTimeInMillis: function () {
-          return approximateEndTime - (new Date().getTime());
-        },
-
-        // Fixed, but reasonably representative
-        functionName: "via-aws-lambda-runner",
-        functionVersion: "$LATEST",
-        invokedFunctionArn: "arn:aws:lambda:" + region() + ":000000000000:function:via-aws-lambda-runner:$LATEST",
-        memoryLimitInMB: 100,
-        awsRequestId: "00000000-0000-0000-0000-000000000000",
-        logGroupName: "/aws/lambda/via-aws-lambda-runner",
-        logStreamName: "some-log-stream-name",
-      };
-
-      context.fail = function(err) { context.done(err, null); };
-      context.succeed = function(data) { context.done(null, data); };
-
       var event = requestObject.event;
-      merge(context, requestObject.context || {});
+
+      var context = makeContextObject(opts.timeout, requestObject.context || {});
+      context.done = function (err, result) {
+        results[id].completed = [ err, result ];
+        if (err) {
+          console.warn('Error:', err);
+        }
+      };
 
       try {
         handler(event, context);
@@ -133,3 +142,5 @@ exports.request = function(req, res, opts, handler) {
   }
 
 };
+
+// vi: set sw=2 et :
