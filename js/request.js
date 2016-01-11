@@ -4,24 +4,24 @@ var url = require('url');
 var next_id = 0;
 // FIXME: this object grows forever - entries are never removed.  Should they
 // be removed by expiry (time), and/or a REST API call?
-var results = {};
+var jobs = {};
 
-var Result = function () {
+var Job = function () {
 };
 
-Result.prototype.doError = function (error) {
+Job.prototype.doError = function (error) {
   if (!this.completionValues && !this.timedOut) {
     this.threw = error;
   }
 };
 
-Result.prototype.doCompletion = function (errorValue, successValue) {
+Job.prototype.doCompletion = function (errorValue, successValue) {
   if (!this.threw && !this.timedOut) {
     this.completionValues = [ errorValue, successValue ];
   }
 };
 
-Result.prototype.doTimedOut = function () {
+Job.prototype.doTimedOut = function () {
   if (!this.threw && !this.completionValues) {
     this.timedOut = true;
   }
@@ -61,7 +61,7 @@ var makeContextObject = function (timeout, overrides) {
 
 var doCreateJob = function (req, res, opts, handler) {
   var id = ++next_id;
-  results[id] = new Result();
+  jobs[id] = new Job();
 
   var requestBody = '';
 
@@ -71,7 +71,7 @@ var doCreateJob = function (req, res, opts, handler) {
 
   req.on('end', function(chunk) {
     setTimeout(function() {
-      results[id].doTimedOut();
+      jobs[id].doTimedOut();
     }, opts.timeout);
 
     var requestObject;
@@ -91,7 +91,7 @@ var doCreateJob = function (req, res, opts, handler) {
 
     var context = makeContextObject(opts.timeout, requestObject.context || {});
     context.done = function (err, result) {
-      results[id].doCompletion(err, result);
+      jobs[id].doCompletion(err, result);
       if (err) {
         console.warn('Error:', err);
       }
@@ -101,13 +101,13 @@ var doCreateJob = function (req, res, opts, handler) {
       handler(event, context);
     } catch (e) {
       console.log("Handler crashed", e);
-      results[id].doError(e);
+      jobs[id].doError(e);
     }
 
   });
 };
 
-var getResultStatus = function (result) {
+var getJobStatus = function (result) {
   var status = null;
   var responseBody = null;
 
@@ -153,8 +153,8 @@ exports.request = function(req, res, opts, handler) {
 
     (function () {
       var request_id = parseInt(url.parse(req.url, true).query.id);
-      var result = results[request_id];
-      var answer = result ? getResultStatus(result) : { status: 404, data: null };
+      var result = jobs[request_id];
+      var answer = result ? getJobStatus(result) : { status: 404, data: null };
 
       // non-standard stringification of undefined
       if (answer.data === undefined) answer.data = null;
