@@ -11,12 +11,22 @@ describe LambdaRunner::Events do
     expect(data["Records"][0]["s3"]["object"]["key"]).to eq("some/key")
   end
 
-  it "should generate an SNS event" do
-    data = LambdaRunner::Events.sns_event("some-arn", "some-id", "some-timestamp", "some-body")
+  it "should generate an SNS event (data body)" do
+    message = { "this_is" => "the message" }
+    data = LambdaRunner::Events.sns_event("some-arn", "some-id", "some-timestamp", message)
     expect(data["Records"][0]["Sns"]["TopicArn"]).to eq("some-arn")
     expect(data["Records"][0]["Sns"]["MessageId"]).to eq("some-id")
     expect(data["Records"][0]["Sns"]["Timestamp"]).to eq("some-timestamp")
-    expect(data["Records"][0]["Sns"]["Message"]).to eq("some-body")
+    expect(JSON.parse data["Records"][0]["Sns"]["Message"]).to eq(message)
+  end
+
+  it "should generate an SNS event (string body)" do
+    message = { "this_is" => "the message" }
+    data = LambdaRunner::Events.sns_event("some-arn", "some-id", "some-timestamp", JSON.generate(message))
+    expect(data["Records"][0]["Sns"]["TopicArn"]).to eq("some-arn")
+    expect(data["Records"][0]["Sns"]["MessageId"]).to eq("some-id")
+    expect(data["Records"][0]["Sns"]["Timestamp"]).to eq("some-timestamp")
+    expect(JSON.parse data["Records"][0]["Sns"]["Message"]).to eq(message)
   end
 
 end

@@ -84,6 +84,10 @@ module LambdaRunner
     end
 
     def self.sns_event(topicArn, messageId, timestamp, messageBody)
+      unless messageBody.kind_of? String
+        messageBody = JSON.generate messageBody
+      end
+
       event = load_json('sample_sns_event.json')
       event['Records'].each do |record|
         record['Sns']['TopicArn'] = topicArn
