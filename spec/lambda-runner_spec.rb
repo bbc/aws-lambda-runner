@@ -4,8 +4,7 @@ require_relative '../lib/lambda_runner'
 describe LambdaRunner::Events do
 
   it "should generate an S3 event" do
-    data = LambdaRunner::Events.s3_event("some-bucket", "some/key", "local/path")
-    expect(data["Records"][0]["file"]["path"]).to eq("local/path")
+    data = LambdaRunner::Events.s3_event("some-bucket", "some/key")
     expect(data["Records"][0]["s3"]["bucket"]["name"]).to eq("some-bucket")
     expect(data["Records"][0]["s3"]["bucket"]["arn"]).to eq("arn:aws:s3:::some-bucket")
     expect(data["Records"][0]["s3"]["object"]["key"]).to eq("some/key")
