@@ -15,8 +15,8 @@ undertest = LambdaRunner::Runner.new(File.expand_path('../path/to/handler.js', _
 
 undertest.start
 
-undertest.process_event LambdaRunner::Runner.s3_event('some-bucket', 'some-key', 'file-path-to-actual-content')
-undertest.process_event LambdaRunner::Runner.sns_event('arn:::topic_name', 'message_uuid', '2015-04-02T07:36:57.451Z', 'message body')
+undertest.process_event LambdaRunner::Events.s3_event('some-bucket', 'some-key', 'file-path-to-actual-content')
+undertest.process_event LambdaRunner::Events.sns_event('arn:::topic_name', 'message_uuid', '2015-04-02T07:36:57.451Z', 'message body')
 
 undertest.stop
 ```
