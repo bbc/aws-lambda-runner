@@ -65,7 +65,8 @@ module LambdaRunner
     end
 
     def stop
-      RestClient.delete(url)
+      @proc.kill
+      @proc.wait_for_exit
     end
   end
 
