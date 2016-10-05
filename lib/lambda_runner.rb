@@ -50,7 +50,7 @@ module LambdaRunner
       payload = JSON.generate({ event: event, context: context })
       id = RestClient.post(url, payload, content_type: :json).to_str
       loop do
-        response = RestClient.get(url, params: { id: id })
+        response = RestClient.get(url, params: { id: id }) {|response, request, res| response}
         data = JSON.parse('['+response.body+']').first
 
         case response.code
