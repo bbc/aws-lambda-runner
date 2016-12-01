@@ -24,7 +24,6 @@ module LambdaRunner
 
     def add_aws_sdk
       STDOUT.puts("Copying aws-sdk into the lambda function's node_modules.")
-      # cp -r File.expand_path(../../js/node_modules/aws-sdk, __FILE__) $(dirname @module_path)/node_modules
       FileUtils.cp_r File.expand_path('../../js/node_modules/aws-sdk', __FILE__), "#{File.dirname(@module_path)}/node_modules"
     end
 
@@ -33,7 +32,10 @@ module LambdaRunner
         opts[:timeout] = '30000'
       end
       install_deps
-      add_aws_sdk
+      #copy over aws sdk only if it is not already there
+      if !File.directory?("#{File.dirname(@module_path)}/node_modules/aws-sdk")
+        add_aws_sdk
+      end
       # start node in a way that emulates how it's run in production
       cmd = ['node']
       cmd = [File.join(@npm_cwd, 'node_modules/.bin/istanbul'), 'cover', '--root', File.dirname(@module_path), '--'] if opts[:cover]

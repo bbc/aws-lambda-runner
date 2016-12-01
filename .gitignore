@@ -4,3 +4,4 @@ doc
 node_modules
 *.gem
 Gemfile.lock
+.idea/
