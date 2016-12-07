@@ -17,3 +17,10 @@ var server = http.createServer(function (req, res) {
   request.request(req, res, opts, module[opts.handler]);
 }).listen(opts.port);
 console.info('Server running at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler);
+
+process.on('SIGTERM', function () {
+  console.info("Caught SIGTERM, stopping server");
+  server.close(function () {
+    process.exit(0);
+  });
+});

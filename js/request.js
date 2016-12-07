@@ -142,17 +142,6 @@ exports.request = function(req, res, opts, handler) {
 
     doCreateJob(req, res, opts, handler);
 
-  } else if (req.method === 'DELETE') {
-
-    (function () {
-      // FIXME untested
-      res.writeHead(202, {'Content-Type': 'text/plain'});
-      var terminationMessage = 'Terminating server at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler;
-      res.end(terminationMessage + '\n');
-      console.info(terminationMessage);
-      server.close();
-    })();
-
   } else if (req.method === 'GET') {
 
     (function () {
