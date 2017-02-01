@@ -150,7 +150,9 @@ exports.request = function(req, res, opts, handler) {
       var terminationMessage = 'Terminating server at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler;
       res.end(terminationMessage + '\n');
       console.info(terminationMessage);
-      server.close();
+      if (server) {
+        server.close();
+      }
     })();
 
   } else if (req.method === 'GET') {
