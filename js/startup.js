@@ -13,7 +13,11 @@ var opts = stdio.getopt({
 console.info(opts);
 
 var module = require(opts['module-path']);
-var server = http.createServer(function (req, res) {
-  request.request(req, res, opts, module[opts.handler]);
-}).listen(opts.port);
+var server = http.createServer();
+
+server.on('request', function (req, res) {
+  request.request(req, res, opts, module[opts.handler], server);
+});
+
+server.listen(opts.port);
 console.info('Server running at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler);
