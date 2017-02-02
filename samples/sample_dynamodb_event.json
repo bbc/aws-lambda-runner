@@ -1,0 +1,19 @@
+{
+  "Records": [
+    {
+      "eventID": "e837fca4eb43e83b3ffb681d1daa701d",
+      "eventName": "INSERT",
+      "eventVersion": "1.0",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "eu-west-1",
+      "dynamodb": {
+        "Keys": {
+        },
+       "SequenceNumber": "0",
+       "SizeBytes": 149,
+       "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws:dynamodb:eu-west-1:123456789:table/dynamodb-table/stream/2015-09-30T16:34:32.317"
+    }
+  ]
+}

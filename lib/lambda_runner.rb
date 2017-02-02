@@ -99,6 +99,28 @@ module LambdaRunner
       event
     end
 
+    def self.dynamodb_event(key, new_image = nil, old_image = nil)
+      event = load_json('sample_dynamodb_event.json')
+      get_dynamodb_record(event['Records'][0], key, new_image, old_image)
+      event
+    end
+
+    private_class_method def self.get_dynamodb_record(record, key, new_image, old_image)
+      if new_image && old_image
+        record['dynamodb']['NewImage'] = new_image['NewImage']
+        record['dynamodb']['OldImage'] = old_image['OldImage']
+        record['eventName'] = 'MODIFY'
+      elsif new_image
+        record['dynamodb']['NewImage'] = new_image['NewImage']
+        record['eventName'] = 'INSERT'
+      else
+        record['dynamodb']['OldImage'] = old_image['OldImage']
+        record['eventName'] = 'REMOVE'
+      end
+      record['dynamodb']['Keys'] = key
+      record
+    end
+
     private
 
     def self.load_json(name)
