@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.summary     = 'AWS Lambda testing helper'
   s.description = 'Trigger AWS Lambda functions without deploying to AWS'
   s.homepage    = 'https://github.com/bbc/aws-lambda-runner'
-  s.license     = 'Apache 2'
+  s.license     = 'Apache-2.0'
   s.authors     = ['andrew wheat', 'tristan hill', 'stuart hicks', 'rachel evans']
   s.email       = []
 
