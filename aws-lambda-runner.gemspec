@@ -3,8 +3,8 @@ $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'aws-lambda-runner'
-  s.version     = '1.4.5'
-  s.date        = '2015-07-31'
+  s.version     = '1.5.0'
+  s.date        = '2017-02-02'
   s.summary     = 'AWS Lambda testing helper'
   s.description = 'Trigger AWS Lambda functions without deploying to AWS'
   s.homepage    = 'https://github.com/bbc/aws-lambda-runner'
