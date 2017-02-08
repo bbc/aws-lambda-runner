@@ -73,9 +73,10 @@ module LambdaRunner
 
   # aws events
   class Events
-    def self.s3_event(bucket, key)
+    def self.s3_event(bucket, key, eventName='ObjectCreated:Put')
       event = load_json('sample_s3_event.json')
       event['Records'].each do |record|
+        record['eventName'] = eventName
         record['s3']['bucket'].update('name' => bucket,
                                       'arn' => 'arn:aws:s3:::' + bucket)
         record['s3']['object']['key'] = key
