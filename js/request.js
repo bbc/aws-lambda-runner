@@ -75,7 +75,7 @@ var startJob = function (job, requestObject, handler, opts) {
   };
 
   try {
-    if (parseInt(process.versions['node'].split('.')[0], 10) >= 4) {
+    if (parseInt(process.versions.node.split('.')[0], 10) >= 4) {
       delete context.fail;
       delete context.succeed;
       handler(event, context, context.done);
