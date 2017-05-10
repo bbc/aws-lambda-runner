@@ -1,11 +1,11 @@
-module.exports.node_0_10_42_handler = function (event, context) {
+module.exports.node_4_3_handler = function (event, context, callback) {
   console.log("test handler received event =", JSON.stringify(event));
 
   if (event.succeed) {
     var delay = event.succeed.delay || 0;
     var result = event.succeed.result || null;
     setTimeout(function () {
-      context.done(null, result);
+      callback(null, result);
     }, delay);
   }
 
@@ -13,7 +13,7 @@ module.exports.node_0_10_42_handler = function (event, context) {
     var delay = event.fail.delay || 0;
     var err = event.fail.err || true;
     setTimeout(function () {
-      context.done(err);
+      callback(err);
     }, delay);
   }
 };
