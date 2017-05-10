@@ -75,7 +75,14 @@ var startJob = function (job, requestObject, handler, opts) {
   };
 
   try {
-    handler(event, context);
+    if (parseInt(process.versions['node'].split('.')[0], 10) >= 4) {
+      delete context.fail;
+      delete context.succeed;
+      handler(event, context, context.done);
+    }
+    else {
+      handler(event, context);
+    }
   } catch (e) {
     console.log("Handler crashed", e);
     job.doError(e);
