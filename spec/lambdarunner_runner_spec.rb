@@ -5,7 +5,7 @@ describe LambdaRunner::Runner do
 
   before(:all) do
     test_js = File.expand_path("test.js", File.dirname(__FILE__))
-    @under_test = LambdaRunner::Runner.new(test_js, "node_0_10_42_handler")
+    @under_test = LambdaRunner::Runner.new(test_js, "handler_method")
     @under_test.start
   end
 
