@@ -31,11 +31,11 @@ describe('request', function() {
   });
 
   it('should accept a POST with data and run', function(done) {
-    request.request(req, res, opts, function(data, context) {
+    request.request(req, res, opts, function(data, context, callback) {
       assert.equal(data, "hello world");
       var run_id = parseInt(res._getString());
       check_progress(run_id, 200);
-      context.done(null, 'goodbye');
+      callback(null, 'goodbye');
       check_progress(run_id, 201);
 
       done();
@@ -48,16 +48,16 @@ describe('request', function() {
   });
 
   it('should accept multiple POSTs with data and run', function(done) {
-    request.request(req, res, opts, function(data, context) {
-      context.done(null, 'multiple: first');
+    request.request(req, res, opts, function(data, context, callback) {
+      callback(null, 'multiple: first');
       check_progress(parseInt(res._getString()), 201);
       done();
     });
 
     var req2 = post();
     var res2 = new mockRes();
-    request.request(req2, res2, opts, function(data, context) {
-      context.done(null, 'multiple: second');
+    request.request(req2, res2, opts, function(data, context, callback) {
+      callback(null, 'multiple: second');
       check_progress(parseInt(res2._getString()), 201);
       req.emit('data', '{"event":{}}');
       req.emit('end');
@@ -67,9 +67,9 @@ describe('request', function() {
   });
 
   it('should signal success', function(done) {
-    request.request(req, res, opts, function(data, context) {
+    request.request(req, res, opts, function(data, context, callback) {
       var run_id = parseInt(res._getString());
-      context.done(null, ['goodbye']);
+      callback(null, ['goodbye']);
       var responseData = check_progress(run_id, 201);
       assert.deepEqual(responseData, ['goodbye']);
       done();
@@ -78,36 +78,12 @@ describe('request', function() {
     req.emit('end');
   });
 
-  it('should signal an error via done()', function(done) {
-    request.request(req, res, opts, function(data, context) {
+  it('should signal an error via callback()', function(done) {
+    request.request(req, res, opts, function(data, context, callback) {
       var run_id = parseInt(res._getString());
-      context.done({an: 'error'}, 'goodbye');
+      callback({an: 'error'}, 'goodbye');
       var responseData = check_progress(run_id, 502);
       assert.deepEqual(responseData, {an: 'error'});
-      done();
-    });
-    req.emit('data', '{"event":{}}');
-    req.emit('end');
-  });
-
-  it('should signal an error via fail()', function(done) {
-    request.request(req, res, opts, function(data, context) {
-      var run_id = parseInt(res._getString());
-      context.fail({an: 'error'});
-      var responseData = check_progress(run_id, 502);
-      assert.deepEqual(responseData, {an: 'error'});
-      done();
-    });
-    req.emit('data', '{"event":{}}');
-    req.emit('end');
-  });
-
-  it('should succeed via succeed()', function(done) {
-    request.request(req, res, opts, function(data, context) {
-      var run_id = parseInt(res._getString());
-      context.succeed({a: 'good thing'});
-      var responseData = check_progress(run_id, 201);
-      assert.deepEqual(responseData, {a: 'good thing'});
       done();
     });
     req.emit('data', '{"event":{}}');
@@ -166,7 +142,7 @@ describe('request', function() {
   });
 
   it('should support getRemainingTimeInMillis', function(done) {
-    request.request(req, res, opts, function(data, context) {
+    request.request(req, res, opts, function(data, context, callback) {
       var r1 = context.getRemainingTimeInMillis();
       assert(r1 <= 1000);
       assert(r1 > 800);
@@ -176,7 +152,7 @@ describe('request', function() {
         assert(r2 <= 600);
         assert(r2 > 400);
 
-        context.succeed();
+        callback(null, {});
         done();
       }, 500);
 
@@ -220,8 +196,8 @@ describe('request', function() {
   });
 
   it('should consider undefined error to be like null', function (done) {
-    request.request(req, res, opts, function(data, context) {
-      context.done(undefined, [7]);
+    request.request(req, res, opts, function(data, context, callback) {
+      callback(undefined, [7]);
       process.nextTick(function () {
         var ans = check_progress(parseInt(res._getString()), 201);
         assert.deepEqual(ans, [7]);
@@ -233,8 +209,8 @@ describe('request', function() {
   });
 
   it('should replace undefined success by null so that it makes valid JSON', function (done) {
-    request.request(req, res, opts, function(data, context) {
-      context.done(null, undefined);
+    request.request(req, res, opts, function(data, context, callback) {
+      callback(null, undefined);
       process.nextTick(function () {
         var ans = check_progress(parseInt(res._getString()), 201);
         assert(ans === null);

@@ -53,9 +53,6 @@ var makeContextObject = function (timeout, overrides) {
     return approximateEndTime - (new Date().getTime());
   };
 
-  context.fail = function(err) { context.done(err, null); };
-  context.succeed = function(data) { context.done(null, data); };
-
   return context;
 };
 
@@ -75,7 +72,7 @@ var startJob = function (job, requestObject, handler, opts) {
   };
 
   try {
-    handler(event, context);
+    handler(event, context, context.done);
   } catch (e) {
     console.log("Handler crashed", e);
     job.doError(e);
