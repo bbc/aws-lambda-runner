@@ -8,7 +8,7 @@ require 'fileutils'
 module LambdaRunner
   # abstract for running the program
   class Runner
-    def initialize(module_path, name, port = 8897)
+    def initialize(module_path, name, port = 0)
       @module_path = module_path
       @name = name
       @port = port
