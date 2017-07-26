@@ -10,14 +10,32 @@ var opts = stdio.getopt({
   'handler': {mandatory: true, args: 1, key: 'h', description: 'handler function to call'},
   'timeout': {mandatory: true, args: 1, key: 't', description: 'timeout for handler function'}
 });
-console.info(opts);
 
 var module = require(opts['module-path']);
 var server = http.createServer();
+
+server.on('listening', function () {
+  var local = server.address();
+
+  var host = (
+      local.family == "IPv6"
+      ? "[" + local.address + "]"
+      : local.address
+  );
+
+  server.url = 'http://' + host + ':' + local.port + '/';
+
+  console.info('Server running at', server.url, 'for ' + opts['module-path'] + ' / ' + opts.handler);
+});
 
 server.on('request', function (req, res) {
   request.request(req, res, opts, module[opts.handler], server);
 });
 
+server.on('close', function () {
+  console.info('Terminating server at', server.url, 'for ' + opts['module-path'] + ' / ' + opts.handler);
+  // process.exit is a hack to get the process to die quickly
+  process.exit(0);
+});
+
 server.listen(opts.port);
-console.info('Server running at http://[localhost]:' + opts.port + ' for ' + opts['module-path'] + ' / ' + opts.handler);
