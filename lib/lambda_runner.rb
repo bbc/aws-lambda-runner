@@ -41,11 +41,20 @@ module LambdaRunner
       cmd = [File.join(@npm_cwd, 'node_modules/.bin/istanbul'), 'cover', '--root', File.dirname(@module_path), '--'] if opts[:cover]
       cmd += [File.join(@npm_cwd, 'startup.js'), '-p', @port.to_s, '-m', @module_path, '-h', @name, '-t', opts[:timeout]]
       @proc = ProcessHelper::ProcessHelper.new(print_lines: true)
-      @proc.start(cmd, 'Server running at http')
+      @proc.start(cmd, 'Server running at http:\S+')
+
+      # Annoyingly @proc.start doesn't seem to make the matching pattern
+      # available, so we match again:
+      log = @proc.get_log(:out).join("")
+      if m = log.match(/^Server running at (http:\S+)/)
+        @url = m[1]
+      else
+        raise "Couldn't find node test URL in log: #{log}"
+      end
     end
 
     def url
-      "http://localhost:#{@port}/"
+      @url
     end
 
     def process_event(event, context = {})
