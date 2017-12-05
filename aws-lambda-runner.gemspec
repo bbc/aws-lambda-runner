@@ -3,7 +3,7 @@ $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'aws-lambda-runner'
-  s.version     = '1.7.0'
+  s.version     = '1.7.1'
   s.date        = '2017-07-25'
   s.summary     = 'AWS Lambda testing helper'
   s.description = 'Trigger AWS Lambda functions without deploying to AWS'
@@ -22,9 +22,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'process-helper', '~> 1'
   s.add_dependency 'rest-client', '~> 1.0'
   s.add_dependency 'file_utils', '~> 1'
-  s.add_development_dependency 'rspec', '~> 3.3'
-  s.add_development_dependency 'rspec-core', '~> 3.3'
-  s.add_development_dependency 'rspec-expectations', '~> 3.3'
+  s.add_development_dependency 'rspec', '~> 3.3.0'
+  s.add_development_dependency 'rspec-core', '~> 3.3.0'
+  s.add_development_dependency 'rspec-expectations', '~> 3.3.0'
   s.add_development_dependency 'rubocop', '~> 0'
   s.add_development_dependency 'minitest', '~> 5.0'
   s.add_development_dependency 'rake', '~> 10.0'
