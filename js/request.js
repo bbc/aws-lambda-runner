@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 var merge = require('merge');
 var url = require('url');
 

@@ -31,6 +31,7 @@ module LambdaRunner
       if opts[:timeout] == nil
         opts[:timeout] = '30000'
       end
+      @cover = opts[:cover]
       install_deps
       #copy over aws sdk only if it is not already there
       if !File.directory?("#{File.dirname(@module_path)}/node_modules/aws-sdk")
@@ -38,7 +39,13 @@ module LambdaRunner
       end
       # start node in a way that emulates how it's run in production
       cmd = ['node']
-      cmd = [File.join(@npm_cwd, 'node_modules/.bin/istanbul'), 'cover', '--root', File.dirname(@module_path), '--'] if opts[:cover]
+      cmd = [
+          File.join(@npm_cwd, 'node_modules/.bin/nyc'),
+          '--cwd ', File.dirname(@module_path),
+          '--reporter=lcov',
+          '--report-dir ', File.join(Dir.pwd, 'coverage'),
+          'node'
+      ] if opts[:cover]
       cmd += [File.join(@npm_cwd, 'startup.js'), '-p', @port.to_s, '-m', @module_path, '-h', @name, '-t', opts[:timeout]]
       @proc = ProcessHelper::ProcessHelper.new(print_lines: true)
       @proc.start(cmd, 'Server running at http')
@@ -67,7 +74,12 @@ module LambdaRunner
     end
 
     def stop
+      puts "Stopping Lambda Server"
       RestClient.delete(url)
+      @proc.kill
+
+      cmd = [File.join(@npm_cwd, 'node_modules/.bin/nyc'), 'report']
+      system(cmd.join(' ')) if @cover
     end
   end
 

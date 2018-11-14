@@ -1,5 +1,4 @@
-
-
+/* istanbul ignore file */
 var http = require('http');
 var stdio = require('stdio');
 var request = require('./request.js');
