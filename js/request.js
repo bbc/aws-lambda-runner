@@ -1,5 +1,4 @@
 /* istanbul ignore file */
-var merge = require('merge');
 var url = require('url');
 const alwaysDone = require('always-done')
 
@@ -33,21 +32,19 @@ var region = function () {
     return process.env.AWS_DEFAULT_REGION || process.env.AWS_REGION || process.env.AMAZON_REGION || "xx-dummy-0";
 };
 
-var defaultContextObject = function () {
-  return {
-    // Fixed, but reasonably representative
-    functionName: "via-aws-lambda-runner",
-    functionVersion: "$LATEST",
-    invokedFunctionArn: "arn:aws:lambda:" + region() + ":000000000000:function:via-aws-lambda-runner:$LATEST",
-    memoryLimitInMB: 100,
-    awsRequestId: "00000000-0000-0000-0000-000000000000",
-    logGroupName: "/aws/lambda/via-aws-lambda-runner",
-    logStreamName: "some-log-stream-name",
-  };
-};
+const defaultContextObject = {
+  // Fixed, but reasonably representative
+  functionName: "via-aws-lambda-runner",
+  functionVersion: "$LATEST",
+  invokedFunctionArn: "arn:aws:lambda:" + region() + ":000000000000:function:via-aws-lambda-runner:$LATEST",
+  memoryLimitInMB: 100,
+  awsRequestId: "00000000-0000-0000-0000-000000000000",
+  logGroupName: "/aws/lambda/via-aws-lambda-runner",
+  logStreamName: "some-log-stream-name",
+}
 
 var makeContextObject = function (timeout, overrides) {
-  var context = merge(true, defaultContextObject(), overrides);
+  const context = Object.assign(defaultContextObject, overrides);
 
   var approximateEndTime = (new Date().getTime()) + timeout;
 

@@ -23,7 +23,6 @@
   "dependencies": {
     "always-done": "^1.1.0",
     "aws-sdk": "*",
-    "merge": "^1.2.0",
     "mock-req": "^0.2.0",
     "nyc": "^13.1.0",
     "stdio": "^0.2.7"
