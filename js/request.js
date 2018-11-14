@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 var merge = require('merge');
 var url = require('url');
+const alwaysDone = require('always-done')
 
 var next_id = 0;
 // FIXME: this object grows forever - entries are never removed.  Should they
@@ -73,7 +74,12 @@ var startJob = function (job, requestObject, handler, opts) {
   };
 
   try {
-    handler(event, context, context.done);
+      const options = {
+        args: [event, context]
+      }
+      alwaysDone(handler, options, (err, res) => {
+          context.done(err ? err.message : null, res);
+      })
   } catch (e) {
     console.log("Handler crashed", e);
     job.doError(e);
