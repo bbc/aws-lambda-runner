@@ -16,10 +16,10 @@ module LambdaRunner
 
     def install_deps
       @npm_cwd = File.expand_path('../../js/', __FILE__)
-      STDOUT.puts("trying to use npm install in #{@npm_cwd}")
+      STDOUT.puts("Trying to use npm install in #{@npm_cwd}")
       npm_install_pid = spawn('npm', 'install', chdir: @npm_cwd)
       Process.wait(npm_install_pid)
-      fail 'failed to install the lambda startup' if ($CHILD_STATUS.exitstatus != 0)
+      fail 'Failed to install the lambda startup' if ($CHILD_STATUS.exitstatus != 0)
     end
 
     def add_aws_sdk

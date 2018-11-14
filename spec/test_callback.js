@@ -1,5 +1,4 @@
 module.exports.handler = function (event, context, callback) {
-  console.log("test handler received event =", JSON.stringify(event));
 
   if (event.succeed) {
     var delay = event.succeed.delay;

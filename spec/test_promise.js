@@ -1,7 +1,6 @@
 // native Promises are supported from Node.js 6.10 on AWS lambdas
 
 module.exports.handler = function (event, context) {
-    console.log("test handler received event =", JSON.stringify(event));
 
     if (event.succeed) {
         const delay = event.succeed.delay;

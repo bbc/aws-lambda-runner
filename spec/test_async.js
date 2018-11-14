@@ -1,7 +1,6 @@
 // async await is supported on Node.js 8.10 on AWS lambdas
 
 module.exports.handler = async (event, context) => {
-    console.log("test handler received event =", JSON.stringify(event));
 
     if (event.succeed) {
         const delay = event.succeed.delay;
