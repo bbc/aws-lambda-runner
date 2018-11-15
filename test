@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+bundle install --path "${BUNDLE_PATH:-.gems}"
+bundle exec rspec spec/lambdarunner_runner_spec.rb
+bundle exec rspec spec/lambdarunner_events_spec.rb
+
+npm --prefix js install
+npm --prefix js run test
