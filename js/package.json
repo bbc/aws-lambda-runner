@@ -26,5 +26,8 @@
     "mock-req": "^0.2.0",
     "nyc": "^13.1.0",
     "stdio": "^0.2.7"
+  },
+  "nyc": {
+    "temp-directory": "./coverage/.nyc_output"
   }
 }
