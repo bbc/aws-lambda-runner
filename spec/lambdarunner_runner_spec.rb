@@ -2,7 +2,7 @@ require 'rspec'
 require_relative '../lib/lambda_runner'
 
 
-shared_examples "emulates AWS Lambda" do |lambda_file|
+shared_examples "AWS Lambda: " do |lambda_file|
 
   before(:all) do
     test_js = File.expand_path(lambda_file, File.dirname(__FILE__))
@@ -22,15 +22,15 @@ shared_examples "emulates AWS Lambda" do |lambda_file|
   it "should emulate - failure" do
     expect {
       @under_test.process_event({ fail: { delay: 50, err: "oh noes" } })
-    }.to raise_error("oh noes")
+    }.to raise_error("Error: oh noes")
   end
 
 end
 
 describe LambdaRunner::Runner do
 
-  it_should_behave_like "emulates AWS Lambda", "test_callback.js"
-  it_should_behave_like "emulates AWS Lambda", "test_promise.js"
-  it_should_behave_like "emulates AWS Lambda", "test_async.js"
+  it_should_behave_like "AWS Lambda: ", "test_callback.js"
+  it_should_behave_like "AWS Lambda: ", "test_promise.js"
+  it_should_behave_like "AWS Lambda: ", "test_async.js"
 
 end

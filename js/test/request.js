@@ -1,6 +1,5 @@
 var request = require('../request.js');
 
-var merge = require('merge');
 var mockRes = require('mock-res');
 var mockReq = require('mock-req');
 var assert = require('assert');
@@ -36,9 +35,10 @@ describe('request', function() {
       var run_id = parseInt(res._getString());
       check_progress(run_id, 200);
       callback(null, 'goodbye');
-      check_progress(run_id, 201);
-
-      done();
+      process.nextTick(() => {
+        check_progress(run_id, 201);
+        done();
+      });
     });
     req.emit('data', '{"event":');
     req.emit('data', '"hello');
@@ -49,19 +49,27 @@ describe('request', function() {
 
   it('should accept multiple POSTs with data and run', function(done) {
     request.request(req, res, opts, function(data, context, callback) {
+      const run_id1 = parseInt(res._getString());
       callback(null, 'multiple: first');
-      check_progress(parseInt(res._getString()), 201);
-      done();
+      process.nextTick(() => {
+        console.log('checking runid', run_id1);
+        check_progress(run_id1, 201);
+      });
     });
 
     var req2 = post();
     var res2 = new mockRes();
     request.request(req2, res2, opts, function(data, context, callback) {
+      const run_id2 = parseInt(res2._getString());
       callback(null, 'multiple: second');
-      check_progress(parseInt(res2._getString()), 201);
-      req.emit('data', '{"event":{}}');
-      req.emit('end');
+      process.nextTick(() => {
+        console.log('checking runid', run_id2);
+        check_progress(run_id2, 201);
+        done();
+      });
     });
+    req.emit('data', '{"event":{}}');
+    req.emit('end');
     req2.emit('data', '{"event":{}}');
     req2.emit('end');
   });
@@ -70,9 +78,11 @@ describe('request', function() {
     request.request(req, res, opts, function(data, context, callback) {
       var run_id = parseInt(res._getString());
       callback(null, ['goodbye']);
-      var responseData = check_progress(run_id, 201);
-      assert.deepEqual(responseData, ['goodbye']);
-      done();
+      process.nextTick(() => {
+          var responseData = check_progress(run_id, 201);
+          assert.deepEqual(responseData, ['goodbye']);
+          done();
+      });
     });
     req.emit('data', '{"event":{}}');
     req.emit('end');
@@ -82,9 +92,11 @@ describe('request', function() {
     request.request(req, res, opts, function(data, context, callback) {
       var run_id = parseInt(res._getString());
       callback({an: 'error'}, 'goodbye');
-      var responseData = check_progress(run_id, 502);
-      assert.deepEqual(responseData, {an: 'error'});
-      done();
+      process.nextTick(() => {
+        var responseData = check_progress(run_id, 500);
+        assert.equal(responseData, '{"an":"error"}');
+        done();
+      });
     });
     req.emit('data', '{"event":{}}');
     req.emit('end');
@@ -92,12 +104,10 @@ describe('request', function() {
 
   it('should timeout', function(done) {
     var opts = { timeout: 1 };
-    request.request(req, res, opts, function(data, context) {
+    request.request(req, res, opts, function(data, context, cb) {
       var run_id = parseInt(res._getString());
       setTimeout(function() {
-        var res2 = new mockRes();
-        request.request(new mockReq({method: 'GET', url: '/?id=' + run_id}), res2, opts, null);
-        assert.equal(res2.statusCode, 504);
+        check_progress(run_id, 504);
         done();
       }, 10);
     });
@@ -108,9 +118,7 @@ describe('request', function() {
   it('should give 404 on no such job', function(done) {
     request.request(req, res, opts, function(data, context) {
       var run_id = parseInt(res._getString());
-      var res2 = new mockRes();
-      request.request(new mockReq({method: 'GET', url: '/?id=' + (1+run_id)}), res2, opts, null);
-      assert.equal(res2.statusCode, 404);
+      check_progress(run_id+1, 404);
       done();
     });
     req.emit('data', '{"event":{}}');
@@ -131,14 +139,14 @@ describe('request', function() {
     req.emit('data', '{"event":{}}');
     req.emit('end');
 
-    setTimeout(function() {
+    process.nextTick(() => {
       var run_id = parseInt(res._getString());
       var res2 = new mockRes();
       request.request(new mockReq({method: 'GET', url: '/?id=' + run_id}), res2, opts, null);
       assert.equal(res2.statusCode, 500);
       assert.equal(res2._getString(), '"Error: bang"\n');
       done();
-    }, 10);
+    });
   });
 
   it('should support getRemainingTimeInMillis', function(done) {
@@ -222,12 +230,13 @@ describe('request', function() {
   });
 
   var test_region = function (env, expectedRegion, done) {
-    request.request(req, res, opts, function(data, context) {
+    request.request(req, res, opts, function(data, context, callback) {
       assert.equal(context.invokedFunctionArn.split(/:/)[3], expectedRegion);
+      callback();
       done();
     });
 
-    merge(process.env, env);
+    process.env = Object.assign({}, process.env, env);
     req.emit('data', JSON.stringify({ event: {} }));
     req.emit('end');
   };
