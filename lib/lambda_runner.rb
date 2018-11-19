@@ -49,6 +49,7 @@ module LambdaRunner
       ] if opts[:cover]
       cmd += [File.join(@npm_cwd, 'startup.js'), '-p', @port.to_s, '-m', @module_path, '-h', @name, '-t', opts[:timeout]]
       @proc = ProcessHelper::ProcessHelper.new(print_lines: true)
+      puts cmd.join(' ')
       @proc.start(cmd, 'Server running at http')
     end
 
@@ -78,9 +79,11 @@ module LambdaRunner
       RestClient.delete(url)
       @proc.kill
 
+      # TODO currently coverage is not working on other projects
       cmd = [
           File.join(@npm_cwd, 'node_modules/.bin/nyc'),
           'report',
+          '--report-dir ', File.join(Dir.pwd, 'coverage'),
           '--temp-dir ', File.join(Dir.pwd, 'coverage', 'temp'),
       ]
       system(cmd.join(' ')) if @cover

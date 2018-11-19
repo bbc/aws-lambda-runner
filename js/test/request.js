@@ -79,9 +79,9 @@ describe('request', function() {
       var run_id = parseInt(res._getString());
       callback(null, ['goodbye']);
       process.nextTick(() => {
-          var responseData = check_progress(run_id, 201);
-          assert.deepEqual(responseData, ['goodbye']);
-          done();
+        var responseData = check_progress(run_id, 201);
+        assert.deepEqual(responseData, ['goodbye']);
+        done();
       });
     });
     req.emit('data', '{"event":{}}');
@@ -242,31 +242,31 @@ describe('request', function() {
   };
 
   it('should use AWS_DEFAULT_REGION 1st', function (done) {
-      test_region({
-          AWS_DEFAULT_REGION: "xx-default-1",
-          AWS_REGION: "xx-awsregion-2",
-          AMAZON_REGION: "xx-amazonregion-3",
-      }, "xx-default-1", done);
+    test_region({
+      AWS_DEFAULT_REGION: "xx-default-1",
+      AWS_REGION: "xx-awsregion-2",
+      AMAZON_REGION: "xx-amazonregion-3",
+    }, "xx-default-1", done);
   });
 
   it('should use AWS_REGION 2nd', function (done) {
-      test_region({
-          // AWS_DEFAULT_REGION: undefined,
-          AWS_REGION: "xx-awsregion-2",
-          AMAZON_REGION: "xx-amazonregion-3",
-      }, "xx-awsregion-2", done);
+    test_region({
+      // AWS_DEFAULT_REGION: undefined,
+      AWS_REGION: "xx-awsregion-2",
+      AMAZON_REGION: "xx-amazonregion-3",
+    }, "xx-awsregion-2", done);
   });
 
   it('should use AMAZON_REGION 3rd', function (done) {
-      test_region({
-          // AWS_DEFAULT_REGION: undefined,
-          // AWS_REGION: "xx-awsregion-2",
-          AMAZON_REGION: "xx-amazonregion-3",
-      }, "xx-amazonregion-3", done);
+    test_region({
+      // AWS_DEFAULT_REGION: undefined,
+      // AWS_REGION: "xx-awsregion-2",
+      AMAZON_REGION: "xx-amazonregion-3",
+    }, "xx-amazonregion-3", done);
   });
 
   it('should fall back to a dummy region', function (done) {
-      test_region({}, "xx-dummy-0", done);
+    test_region({}, "xx-dummy-0", done);
   });
 
 });

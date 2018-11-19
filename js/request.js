@@ -65,18 +65,18 @@ var startJob = function (job, requestObject, handler, opts) {
   var context = makeContextObject(opts.timeout, requestObject.context || {});
 
   const done = (err, res) => {
-      if (err) {
-          console.warn('Error:', err);
-          job.doError(err);
-      } else {
-          job.doCompletion(err, res);
-      }
+    if (err) {
+      console.warn('Error:', err);
+      job.doError(err);
+    } else {
+      job.doCompletion(err, res);
+    }
   };
 
   context.done = done;
 
   const options = {
-      args: [event, context]
+    args: [event, context]
   };
 
   alwaysDone(handler, options, done);
