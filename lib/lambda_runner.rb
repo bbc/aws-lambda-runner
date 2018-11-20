@@ -16,10 +16,10 @@ module LambdaRunner
 
     def install_deps
       @npm_cwd = File.expand_path('../../js/', __FILE__)
-      STDOUT.puts("trying to use npm install in #{@npm_cwd}")
+      STDOUT.puts("Trying to use npm install in #{@npm_cwd}")
       npm_install_pid = spawn('npm', 'install', chdir: @npm_cwd)
       Process.wait(npm_install_pid)
-      fail 'failed to install the lambda startup' if ($CHILD_STATUS.exitstatus != 0)
+      fail 'Failed to install the lambda startup' if ($CHILD_STATUS.exitstatus != 0)
     end
 
     def add_aws_sdk
@@ -31,6 +31,7 @@ module LambdaRunner
       if opts[:timeout] == nil
         opts[:timeout] = '30000'
       end
+      @cover = opts[:cover]
       install_deps
       #copy over aws sdk only if it is not already there
       if !File.directory?("#{File.dirname(@module_path)}/node_modules/aws-sdk")
@@ -38,9 +39,17 @@ module LambdaRunner
       end
       # start node in a way that emulates how it's run in production
       cmd = ['node']
-      cmd = [File.join(@npm_cwd, 'node_modules/.bin/istanbul'), 'cover', '--root', File.dirname(@module_path), '--'] if opts[:cover]
+      cmd = [
+          File.join(@npm_cwd, 'node_modules/.bin/nyc'),
+          '--cwd ', File.dirname(@module_path),
+          '--reporter=lcov',
+          '--report-dir ', File.join(Dir.pwd, 'coverage'),
+          '--temp-dir ', File.join(Dir.pwd, 'coverage', 'temp'),
+          'node'
+      ] if opts[:cover]
       cmd += [File.join(@npm_cwd, 'startup.js'), '-p', @port.to_s, '-m', @module_path, '-h', @name, '-t', opts[:timeout]]
       @proc = ProcessHelper::ProcessHelper.new(print_lines: true)
+      puts cmd.join(' ')
       @proc.start(cmd, 'Server running at http')
     end
 
@@ -59,7 +68,6 @@ module LambdaRunner
         when 200 then sleep(0.1)
         when 201 then return data
         when 500 then fail data
-        when 502 then fail data
         when 504 then fail 'timeout'
         else fail "unknown response #{response.code}"
         end
@@ -67,7 +75,18 @@ module LambdaRunner
     end
 
     def stop
+      puts "Stopping Lambda Server"
       RestClient.delete(url)
+      @proc.kill
+
+      # TODO currently coverage is not working on other projects
+      cmd = [
+          File.join(@npm_cwd, 'node_modules/.bin/nyc'),
+          'report',
+          '--report-dir ', File.join(Dir.pwd, 'coverage'),
+          '--temp-dir ', File.join(Dir.pwd, 'coverage', 'temp'),
+      ]
+      system(cmd.join(' ')) if @cover
     end
   end
 

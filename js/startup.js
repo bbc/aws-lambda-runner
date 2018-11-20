@@ -1,5 +1,4 @@
-
-
+/* istanbul ignore file */
 var http = require('http');
 var stdio = require('stdio');
 var request = require('./request.js');
@@ -10,7 +9,7 @@ var opts = stdio.getopt({
   'handler': {mandatory: true, args: 1, key: 'h', description: 'handler function to call'},
   'timeout': {mandatory: true, args: 1, key: 't', description: 'timeout for handler function'}
 });
-console.info(opts);
+console.info('Startup with options: ', JSON.stringify(opts, null, 2));
 
 var module = require(opts['module-path']);
 var server = http.createServer();

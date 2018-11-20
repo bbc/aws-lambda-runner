@@ -1,26 +1,30 @@
 {
   "name": "lambda-helper",
   "version": "1.0.0",
-  "description": "",
+  "description": "lambda-helper",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bbc/aws-lambda-runner.git"
+  },
   "main": "startup.js",
   "scripts": {
     "test": "mocha"
   },
   "author": "",
-  "license": " ",
+  "license": "Apache-2.0",
   "devDependencies": {
     "assert": "^1.4.1",
     "jshint": "^2.9.4",
-    "mocha": "^3.3.0",
+    "mocha": "^5.2.0",
     "mocha-jshint": "^2.3.1",
     "mock-res": "^0.4.1",
     "should": "^11.2.1"
   },
   "dependencies": {
+    "always-done": "^1.1.0",
     "aws-sdk": "*",
-    "istanbul": "^0.4.5",
-    "merge": "^1.2.0",
     "mock-req": "^0.2.0",
+    "nyc": "^13.1.0",
     "stdio": "^0.2.7"
   }
 }

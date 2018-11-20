@@ -27,3 +27,5 @@ This will start a running the lambda deployable, then send two notifications to 
 ## Caveats & Known Issues
 
 For a node.js deployment, you have to have done a `npm install` in your handler's directory if you are using any external libraries.
+
+To run tests you will need a version of node supporting async/await (node > 7.10.1)
